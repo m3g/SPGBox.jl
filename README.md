@@ -9,7 +9,7 @@ The documentation can be found at:
 
 ## Installing:
 
-```
+```julia
 julia> ] add SPGBox
 
 julia> using SPGBox
