@@ -1,0 +1,4 @@
+name = "SPGBox"
+uuid = "bf97046b-3e66-4aa0-9aed-26efb7fac769"
+authors = ["Leandro Martinez <leandro@iqm.unicamp.br>"]
+version = "0.1.0"
