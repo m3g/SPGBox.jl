@@ -92,6 +92,13 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
       x[i] = max(x[i],l[i])
       x[i] = min(x[i],u[i])
     end
+  # If do not project, test if they are withing the bounds
+  else
+    for i in 1:length(x)
+      if x[i] > u[i] || x[i] < l[i]
+        error(" Initial point outside bounds, and project_x0 is set to false. ")
+      end
+    end
   end
 
   # Objective function at initial point
