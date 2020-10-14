@@ -1,3 +1,6 @@
+usign Pkg
+Pkg.add("Test")
+
 using SPGBox
 using Test
 
