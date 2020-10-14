@@ -1,22 +1,21 @@
 import Pkg
 Pkg.add("Documenter")
 using Documenter
-using PDBTools
+using SPGBox
 push!(LOAD_PATH,"../src/")
 makedocs(
-    modules=[PDBTools],
-    sitename="PDBTools.jl",
+    modules=[SPGBox],
+    sitename="SPGBox.jl",
     pages = [
         "Home" => "index.md",
         "Installation" => "installation.md",
-        "Read and Write" => "readwrite.md",
-        "Selections" => "selections.md",
-        "Element properties" => "elements.md",
-        "Auxiliary functions" => "auxiliary.md",
+        "Basic usage" => "usage.md",
+        "Options" => "options.md",
+        "Reference" => "reference.md",
     ]
 )
 deploydocs(
-    repo = "github.com/m3g/PDBTools.git",
+    repo = "github.com/m3g/SPGBox.git",
     target = "build",
     branch = "gh-pages",
     versions = ["stable" => "v^", "v#.#" ],
