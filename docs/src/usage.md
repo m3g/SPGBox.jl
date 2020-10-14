@@ -1,4 +1,4 @@
-# Usage
+# User guide
 
 ## Definition of the objective function and gradient functions
 
@@ -21,12 +21,12 @@ modify it. The parameters of the gradient function must be at least,
 therefore, the current point `x` and the gradient vector `g`:
 
 ```julia
-julia> function grad!(x,g,a,b,c)
+julia> function grad!(x,g,a,b)
          g[1] = 2*a*x[1]
          g[2] = 2*(x[2]-b)
        end
 
-julia> grad!(x,g) = grad!(x,g,a,b,c) 
+julia> grad!(x,g) = grad!(x,g,a,b) 
 
 ```
 
