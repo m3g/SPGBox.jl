@@ -26,12 +26,6 @@ The available keywords are:
 | `eps`         | `Real` | Convergence criteria for the projected gradient norm. | `1e-5` |
 | `m`           | `Integer` | Number of non-monotone search steps.  | `10` |
 
-Additional keywords ar
-
-Additionally, a `iprint` option, with default value `0` is available.
-Setting it to `1` or `2` will increase the detail of the iteration
-output. 
-
 ## Memory management 
 
 The SPGBox method requires four auxiliary vectors, three of them of
@@ -97,6 +91,16 @@ julia> @btime spgbox!(x,func,grad!,g=g,xn=xn,gn=gn,fprev=fprev,l=l,u=u)
 While SPG is very memory efficient, pré-allocation of the arrays reduces
 significanltly the use of memory, which might be important for multiple
 executions of the the same code.
+
+# Additional keywords available
+
+Additional keywords available:
+
+| Keyword       | Type          |Meaning        | Default value  |
+|:-------------:|:-------------:|:-------------:|:--------------:|
+| `iprint`      | `Integer` | Printing details (0, 1, or 2) | `0` |
+| `project_x0`  | `Bool` | Projects, or not, the initial point on the bounds. | `true` |
+
 
 
 
