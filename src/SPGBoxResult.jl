@@ -41,6 +41,9 @@ function Base.show( io :: IO, R :: SPGBoxResult )
   for i in 1:min(length(R.x)-1,3)
     print("$(R.x[i]), ")
   end
+  if length(R.x) > 4 
+    print("..., ")
+  end
   println(R.x[length(R.x)],"]")
   println(" Projected gradient norm = ", R.gnorm)
   println("")
