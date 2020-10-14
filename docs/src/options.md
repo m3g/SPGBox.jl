@@ -11,8 +11,10 @@ possibly non-monotone steps.
 
 These keywords provided to `spgbox!` with, for example:
 
-``julia
+```julia
 julia> R = spgbox!(x,func,grad!,nitmax=1000)
+
+```
 
 
 where `nitmax`, in this case, is the maximum number of iterations.
@@ -58,6 +60,8 @@ grad! (generic function with 2 methods)
 julia> n = 1_000_000
 
 julia> x = rand(n);
+
+```
 
 Without pre-allocating the auxiliary arrays:
 
