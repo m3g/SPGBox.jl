@@ -10,10 +10,12 @@
 #
 """
 
-`spgbox!(x :: Vector{Real}, func, grad; l :: Vector{Real}, u :: Vector{Real})`
+`spgbox!(x :: Vector{Real}, func, grad!; l :: Vector{Real}, u :: Vector{Real})`
 
 Minimizes function `func` starting from initial point `x`, given
-the function to compute the gradient, `grad`. 
+the function to compute the gradient, `grad!`. `func` must be of the form 
+`func(x)`, and `grad!` of the form `grad!(x,g)`, where `g` is the gradient
+vector to be modified. 
 
 Optional lower and upper box bounds can be provided using optional arguments `l` and `u`.
 
@@ -67,7 +69,7 @@ julia> spgbox!(x,func,grad!,l=[2.,-Inf])
  Number of function evaluations = 3
 ```
 """
-function spgbox!(x :: AbstractVector{Float64}, func, grad;
+function spgbox!(x :: AbstractVector{Float64}, func, grad!;
                  l = [ -Inf for i in 1:length(x) ],
                  u = [ +Inf for i in 1:length(x) ],
                  g = similar(x),
@@ -93,9 +95,10 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad;
   end
 
   # Objective function at initial point
-  f = func(x)
   nfeval = 1
+  f = func(x)
   grad!(x,g)
+  gnorm = pr_gradnorm(x,g,l,u)
 
   tspg = 1.
   for i in 1:m
@@ -114,11 +117,8 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad;
     end
     
     # Compute gradient norm
-    gnorm = 0.
-    for i in 1:n
-      z = max(l[i], min(u[i], x[i]-g[i])) - x[i]
-      gnorm = max(gnorm, abs(z))
-    end
+    gnorm = pr_gradnorm(x,g,l,u)
+
     if iprint > 0
       println(" ")
       println(" Norm of the projected gradient = ", gnorm)
