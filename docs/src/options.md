@@ -26,6 +26,8 @@ The available keywords are:
 | `eps`         | `Real` | Convergence criteria for the projected gradient norm. | `1e-5` |
 | `m`           | `Integer` | Number of non-monotone search steps.  | `10` |
 
+Additional keywords ar
+
 Additionally, a `iprint` option, with default value `0` is available.
 Setting it to `1` or `2` will increase the detail of the iteration
 output. 
