@@ -13,8 +13,7 @@ projected gradient methods on convex sets", SIAM Journal on Optimization
 ## Documentation
 
 The complete documentation can be found at: 
-(https://m3g.github.io/SPGBox/stable/)
-[https://m3g.github.io/SPGBox/stable/]
+https://m3g.github.io/SPGBox/stable/
 
 ## How to install
 
@@ -31,7 +30,7 @@ julia> ] add SPGBox
 
 ```
 
-# Quick usage example:
+## Quick usage example:
 
 Define the function to compute the objective function and the gradient,
 for example with:
