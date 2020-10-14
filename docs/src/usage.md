@@ -135,7 +135,7 @@ The data structure contains:
 
 The possible outcomes of `ierr` are:
 
-|                  |                 |
+| Outcome          |  Meaning                 |
 |:-----------------|:----------------|
 | `ierr=0`           | Success: convergence achieved. |
 | `ierr=1`           | Maximum number of iterations achieved. |
