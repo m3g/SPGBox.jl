@@ -1,34 +1,62 @@
-# PDBTools
+# SPGBox
 
-PDBTools is a simple package to read and write Protein Data Bank files,
-select atoms, and work with their coordinates.  
+SPGBox is a pure-Julia implementation of the Spectral Projected Gradient Method 
+for minimization in box constraints, as described in: 
 
-### Features:
+E. G. Birgin, J. M. Martínez and M. Raydan, "Nonmonotone spectral
+projected gradient methods on convex sets", SIAM Journal on Optimization
+10, pp. 1196-1211, 2000. 
+[LINK](http://www.ime.usp.br/~egbirgin/publications/bmr.pdf)
 
-> Simple data structure: 
-> ```julia
->julia> atoms[1]
->   PDBTools.Atom with fields:
->   index name resname chain   resnum  residue        x        y        z     b occup model segname index_pdb
->       1   OW     SOL     X        1        1   54.370   45.310   33.970  0.00  0.00     1       -         1
-> ```
+## How to install
 
-> Selection syntax:
-> ```julia
-> resname ARG and name CA
-> ```
+```julia
+julia> using Pkg
 
-> Allows use of Julia (possibly user-defined) functions for selection:
-> ```julia
-> atom -> ( atom.resname == "ARG" && atom.x < 10 ) || atom.name == "N"
-> ```
+julia> Pkg.add("SPGBox")
+```
 
-### Not indicated for:
+or, more concisely,
 
-We do not aim to provide the fastest PDB parsing methods. If
-speed in reading files, returning subsets of the structures, etc., is
-critical to you, probably you will do better with some packages of 
-[BioJulia](https://github.com/BioJulia), 
-[BioStructures](https://github.com/BioJulia/BioStructures.jl) in
-particular.
+```julia
+julia> ] add SPGBox
+
+```
+
+# Quick usage example:
+
+Define the function to compute the objective function and the gradient,
+for example with:
+
+```julia
+julia> func(x) = x[1]^2 + x[2]^2
+
+julia> function grad!(x,g)
+         g[1] = 2*x[1]
+         g[2] = 2*x[2]
+       end
+```
+
+And the objective function can be minimized with optional box bounds.
+Here, with a lower bound of `2` for the first variable:
+
+```julia
+julia> x = 2 .+ rand(2)
+
+julia> spgbox!(x,func,grad!,l=[2.,-Inf])
+
+ SPGBOX RESULT:
+
+ Convergence achieved.
+
+ Final objective function value = 4.0
+ Best solution found = [ 2.0, 0.0]
+ Projected gradient norm = 0.0
+
+ Number of iterations = 2
+ Number of function evaluations = 3
+
+```
+
+
 

@@ -7,9 +7,8 @@ makedocs(
     modules=[SPGBox],
     sitename="SPGBox.jl",
     pages = [
-        "Home" => "index.md",
-        "Installation" => "installation.md",
-        "Basic usage" => "usage.md",
+        "Installation" => "index.md",
+        "User guide" => "usage.md",
         "Options" => "options.md",
         "Reference" => "reference.md",
     ]
