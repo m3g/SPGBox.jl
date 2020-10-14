@@ -114,7 +114,7 @@ struct SPGBoxResult
 end
 ```
 
-The data can be accesses as usual, using, for example:
+The data can be accessed as usual, using, for example:
 
 ```julia
 julia> R.f
