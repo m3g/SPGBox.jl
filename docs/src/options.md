@@ -1,4 +1,4 @@
-# [Options](@id options)
+# [Options](@id Options)
 
 Several keyword parameters can be used to adjust the convergence
 criteria and to deal with the memory management of the execution.  
