@@ -30,7 +30,7 @@ julia> grad!(x,g) = grad!(x,g,a,b)
 
 ```
 
-The function method which receive only the current point `x`, and the
+The function method which receives only the current point `x`, and the
 gradient method which receives only `x` and the gradient vector `g` are
 the ones actually invoked by the optimizer. By convention, the gradient
 function name includes an `!` to indicate that it modifies its
