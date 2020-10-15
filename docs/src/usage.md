@@ -4,7 +4,7 @@
 
 A function must be defined receiving as argument the current point as a vector: 
 
-```jldoctest
+```julia-repl
 julia> func(x) = x[1]^2 + x[2]^2
 
 ```
@@ -12,7 +12,7 @@ julia> func(x) = x[1]^2 + x[2]^2
 And the gradient must receive as arguments the vector of variables and a
 vector which will be modified to contain the gradient at the current point:
 
-```jldoctest
+```julia-repl
 julia> function grad!(x,g)
          g[1] = 2*x[1]
          g[2] = 2*x[2]
@@ -27,7 +27,7 @@ the `!` to its name, although this does not affect at all its behavior.
 The solver `spgbox!`, which modifies the input value of `x`, has a
 minimal calling syntax of
 
-```jldoctest
+```julia-repl
 julia> x = rand(2)
 
 julia> R = spgbox!(x,func,grad!)
@@ -37,7 +37,7 @@ julia> R = spgbox!(x,func,grad!)
 The results will be returned to the data structure `R` of type
 `SPGBoxResult`, and will be output as: 
 
-```jldoctest
+```julia-repl
 julia> R = spgbox!(x,func,grad!)
 
  SPGBOX RESULT: 
@@ -61,7 +61,7 @@ delimit the bounds for each variable. For example, assuming the same
 function and gradient functions defined in the example above, a lower
 bound will be set for the second variable:
 
-```jldoctest
+```julia-repl
 
 julia> R = spgbox!(x,func,grad!,l=[-Inf,5])
 
@@ -87,7 +87,7 @@ numbers of iterations or functional evaluations. These outcomes are
 explicit in the output printed (second line), and stored in the result
 structure, which contains the following data: 
 
-```jldoctest
+```julia-repl
 struct SPGBoxResult
   x :: Vector{Float64}
   f :: Float64
@@ -100,7 +100,7 @@ end
 
 The data can be accessed as usual, using, for example:
 
-```jldoctest
+```julia-repl
 julia> R.f
 12.0
 
@@ -140,7 +140,7 @@ The solver requires a function with a single argument, `x`, and a gradient
 function with two arguments, `x` and `g`. If the function and gradient evalutions
 require more parameters, use, for example: 
 
-```jldoctest
+```julia-repl
 julia> func(x,a,b,c) = a*x[1]^2 + (x[2]-b)^2 + c
 
 julia> const a = 5. ; const b = 2. ; const c = 3. ;
@@ -155,7 +155,7 @@ optimizations that make Julia fast.
 
 The gradient function will be defined accordingly:
 
-```jldoctest
+```julia-repl
 julia> function grad!(x,g,a,b)
          g[1] = 2*a*x[1]
          g[2] = 2*(x[2]-b)
@@ -182,7 +182,7 @@ be provided directly as arguments to the solver, while providing an interface fo
 using external parameters. Considering the same function and gradient functions
 above, one uses anonymous functions  directly as arguments in the solver call:
 
-```jldoctest
+```julia-repl
 julia> R = spgbox!(x, x -> func(x,a,b,c), (x,g) -> grad!(x,g,a,b))
 
 ```
@@ -205,7 +205,7 @@ Here, a simple example, in which we use `ForwardDiff.gradient!` to
 compute the derivative of a function which is the sum of squares of
 the variables:
 
-```jldoctest
+```julia-repl
 julia> using SPGBox, ForwardDiff
 
 julia> function func(x)
