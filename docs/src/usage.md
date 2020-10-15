@@ -201,7 +201,7 @@ only two points that must be taken into consideration are: 1) The
 AD function must modify an existing gradient vector and 2) use anonymous
 closures to provide the gradient calculation function to the solver.
 
-Here, a simple example, in which we use `ForwardDiff.gradient!` to
+Here, a simple example, in which we use `ReverseDiff.gradient!` to
 compute the derivative of a function which is the sum of squares of
 the variables:
 
