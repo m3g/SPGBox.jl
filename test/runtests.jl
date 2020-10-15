@@ -1,5 +1,6 @@
-using Pkg
-Pkg.add("Test","SPGBox")
+import Pkg
+Pkg.add("Test")
+Pkg.add("SPGBox")
 using Test
 using SPGBox
 
