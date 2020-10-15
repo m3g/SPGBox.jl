@@ -196,7 +196,7 @@ as constants.
 
 Julia provides various packages for automatic differentiation, which can
 be used in combination with `SPGBox`. Here, we illustrate the use of
-[ForwardDiff](http://www.juliadiff.org/ForwardDiff.jl/stable/). The
+[ReverseDiff](http://www.juliadiff.org/ReverseDiff.jl/). The
 only two points that must be taken into consideration are: 1) The
 AD function must modify an existing gradient vector and 2) use anonymous
 closures to provide the gradient calculation function to the solver.
@@ -206,7 +206,7 @@ compute the derivative of a function which is the sum of squares of
 the variables:
 
 ```julia-repl
-julia> using SPGBox, ForwardDiff
+julia> using SPGBox, ReverseDiff
 
 julia> function func(x)
          f = 0.
@@ -218,17 +218,17 @@ julia> function func(x)
 
 julia> x = rand(2)
 
-julia> spgbox!(x,func,(x,g) -> ForwardDiff.gradient!(g,func,x))
+julia> spgbox!(x,func,(x,g) -> ReverseDiff.gradient!(g,func,x), l=[-Inf,2.])
 
  SPGBOX RESULT:
 
  Convergence achieved.
 
- Final objective function value = 0.0
- Best solution found = [ 0.0, 0.0]
+ Final objective function value = 4.0
+ Best solution found = [ 0.0, 2.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 2
- Number of function evaluations = 3
+ Number of iterations = 0
+ Number of function evaluations = 1
 
 ```
