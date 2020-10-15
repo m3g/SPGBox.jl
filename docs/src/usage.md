@@ -218,7 +218,7 @@ julia> function func(x)
 
 julia> x = rand(2)
 
-julia> spgbox!(x,func,(x,g) -> ForwardDiff.gradient!(g,func,x) )
+julia> spgbox!(x,func,(x,g) -> ForwardDiff.gradient!(g,func,x))
 
  SPGBOX RESULT:
 
