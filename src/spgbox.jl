@@ -70,33 +70,67 @@ julia> spgbox!(x,func,grad!,l=[2.,-Inf])
 ```
 """
 function spgbox!(x :: AbstractVector{Float64}, func, grad!;
-                 l = [ -Inf for i in 1:length(x) ],
-                 u = [ +Inf for i in 1:length(x) ],
-                 g = similar(x),
-                 xn = similar(x),
-                 gn = similar(x),
+                 l :: Union{Nothing,AbstractVector{Float64}} = nothing, 
+                 u :: Union{Nothing,AbstractVector{Float64}} = nothing, 
+                 eps :: Float64 = 1.e-5,
                  nitmax :: Int64 = 100,
                  nfevalmax :: Int64 = 1000,
-                 eps :: Float64 = 1.e-5,
-                 iprint :: Int64 = 0,
                  m :: Int64 = 10,
-                 fprev = zeros(m),
-                 project_x0 = true)
+                 aux :: Aux = Aux(length(x),m),
+                 iprint :: Int64 = 0,
+                 project_x0 :: Bool = true)
 
   # Number of variables
   n = length(x)
 
-  # Project initial point into bounds if set
-  if project_x0
-    for i in 1:length(x)
-      x[i] = max(x[i],l[i])
-      x[i] = min(x[i],u[i])
-    end
-  # If do not project, test if they are withing the bounds
+  # Auxiliary arrays (associate names and check dimensions)
+  if length(aux.g) == n
+    g = aux.g
   else
-    for i in 1:length(x)
-      if x[i] > u[i] || x[i] < l[i]
-        error(" Initial point outside bounds, and project_x0 is set to false. ")
+    error(" Auxiliar gradient vector g must be of the same length as x. ")
+  end
+  if length(aux.xn) == n
+    xn = aux.xn
+  else
+    error(" Auxiliar vector xn must be of the same length as x. ")
+  end
+  if length(aux.gn) == n
+    gn = aux.gn
+  else
+    error(" Auxiliar vector gn must be of the same length as x. ")
+  end
+  if length(aux.fprev) == m
+    fprev = aux.fprev
+  else
+    error(" Auxiliar vector fprev must be of length m. ")
+  end
+
+  # Check if bounds are defined, project or not the initial point on them
+  if l != nothing
+    if length(l) != n
+      error(" Lower bound vector l must be of the same length than x, got: ",length(l))
+    end
+    if project_x0
+      @. x = max(x,l)
+    else
+      for i in 1:length(x)
+        if x[i] < l[i]
+          error(" Initial value of variable $i smaller than lower bound, and project_x0 is set to false. ")
+        end
+      end
+    end
+  end
+  if u != nothing
+    if length(u) != n
+      error(" Upper bound vector u must be of the same length than x, got: ",length(u))
+    end
+    if project_x0
+      @. x = min(x,u)
+    else
+      for i in 1:length(x)
+        if x[i] > l[i]
+          error(" Initial value of variable $i greater than upper bound, and project_x0 is set to false. ")
+        end
       end
     end
   end
@@ -155,7 +189,12 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
     while( fn > fref )
       for i in 1:n
         xn[i] = x[i] - t*g[i]
-        xn[i] = max(l[i],min(xn[i],u[i]))
+        if u != nothing
+          xn[i] = min(xn[i],u[i])
+        end
+        if l != nothing
+          xn[i] = max(xn[i],l[i])
+        end
       end 
       if iprint > 2
         println(" xn = ", xn[1], xn[2] )
