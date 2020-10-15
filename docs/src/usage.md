@@ -25,7 +25,7 @@ the `!` to its name, although this does not affect at all its behavior.
 
 ## Calling the solver, without bounds
 
-The optimizer `spgbox!`, which modifies the input value of `x`, has a
+The solver `spgbox!`, which modifies the input value of `x`, has a
 minimal calling syntax of
 
 ```jldoctest
@@ -54,7 +54,7 @@ julia> R = spgbox!(x,func,grad!)
 
 ```
 
-## Calling the optimizer, with box bounds
+## Calling the solver, with box bounds
 
 Box bounds can be provided by the optional keywords `l` and `u` for
 lower and upper bounds, respectively. These are vectors that will
@@ -168,7 +168,7 @@ julia> grad!(x,g) = grad!(x,g,a,b)
 
 The function method which receives only the current point `x`, and the
 gradient method which receives only `x` and the gradient vector `g` are
-the ones actually invoked by the optimizer. 
+the ones actually invoked by the solver.
 
 ### Using anonymous closures 
 
