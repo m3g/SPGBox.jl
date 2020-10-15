@@ -196,7 +196,7 @@ as constants.
 
 Julia provides various packages for automatic differentiation, which can
 be used in combination with `SPGBox`. Here, we illustrate the use of
-[ForwardDiff](!http://www.juliadiff.org/ForwardDiff.jl/stable/). The
+[ForwardDiff](http://www.juliadiff.org/ForwardDiff.jl/stable/). The
 only two points that must be taken into consideration are: 1) The
 AD function must modify an existing gradient vector and 2) use anonymous
 closures to provide the gradient calculation function to the solver.
