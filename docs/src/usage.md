@@ -192,6 +192,43 @@ is evaluated by an anonymous function that, given `(x,g)`, returns `grad!(x,g,a,
 This syntax also preserves performance and does not require the parameters to be declared
 as constants. 
 
+## Using automatic differentiation (AD)
 
+Julia provides various packages for automatic differentiation, which can
+be used in combination with `SPGBox`. Here, we illustrate the use of
+[ForwardDiff](!http://www.juliadiff.org/ForwardDiff.jl/stable/). The
+only two points that must be taken into consideration are: 1) The
+AD function must modify an existing gradient vector and 2) use anonymous
+closures to provide the gradient calculation function to the solver.
 
+Here, a simple example, in which we use `ForwardDiff.gradient!` to
+compute the derivative of a function which is the sum of squares of
+the variables:
 
+```jldoctest
+julia> using SPGBox, ForwardDiff
+
+julia> function func(x)
+         f = 0.
+         for i in 1:length(x)
+           f += x[i]^2
+         end
+         f
+       end
+
+julia> x = rand(2)
+
+julia> spgbox!(x,func,(x,g) -> ForwardDiff.gradient!(g,func,x) )
+
+ SPGBOX RESULT:
+
+ Convergence achieved.
+
+ Final objective function value = 0.0
+ Best solution found = [ 0.0, 0.0]
+ Projected gradient norm = 0.0
+
+ Number of iterations = 2
+ Number of function evaluations = 3
+
+```
