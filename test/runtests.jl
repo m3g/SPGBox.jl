@@ -1,6 +1,3 @@
-import Pkg
-Pkg.add("Test")
-Pkg.add("SPGBox")
 using Test
 using SPGBox
 
