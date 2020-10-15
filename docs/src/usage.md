@@ -2,41 +2,30 @@
 
 ## Definition of the objective function and gradient functions
 
-A function must be defined receiving as arguments the current point as a
-vector. If the function requires additional parameters, these can
-provided by defining an additional parameter-free method. For example: 
+A function must be defined receiving as argument the current point as a
+vector: 
 
 ```julia
-julia> func(x,a,b,c) = a*x[1]^2 + (x[2]-b)^2 + c
 
-julia> const a = 5. ; const b = 2. ; const c = 3. ;
+julia> func(x) = x[1]^2 + x[2]^2
 
-julia> func(x) = func(x,a,b,c) 
 
 ```
 
-A function to compute the gradient must also be provided. This function
-will assume that the gradient vector is already allocated and will
-modify it. The parameters of the gradient function must be at least,
-therefore, the current point `x` and the gradient vector `g`:
+And the gradient must receive as arguments the vector of variables and a
+vector which will be modified to contain the gradient at the current point:
 
 ```julia
-julia> function grad!(x,g,a,b)
-         g[1] = 2*a*x[1]
-         g[2] = 2*(x[2]-b)
+julia> function grad!(x,g)
+         g[1] = 2*x[1]
+         g[2] = 2*x[2]
        end
 
-julia> grad!(x,g) = grad!(x,g,a,b) 
-
 ```
+by convention, to indicate that the gradient function modifies the vector `g`, we add
+the `!` to its name, although this does not affect at all its behavior.
 
-The function method which receives only the current point `x`, and the
-gradient method which receives only `x` and the gradient vector `g` are
-the ones actually invoked by the optimizer. By convention, the gradient
-function name includes an `!` to indicate that it modifies its
-arguments.
-
-## Calling the optimizer, without bounds
+## Calling the solver, without bounds
 
 The optimizer `spgbox!`, which modifies the input value of `x`, has a
 minimal calling syntax of
@@ -144,7 +133,69 @@ The possible outcomes of `ierr` are:
 The convergence criteria can be adjusted using optional keywords, as
 described in the [Options](@ref Options) section.
 
+## Data-dependent function evaluation
 
+If the function requires additional parameters, two strategies are
+possible while preserving performance: 1) Declare the parameters as constants
+and define an extra method, or 2) Pass the function as an anonymous closure. 
+
+### Constant parameters and new function and gradient methods 
+
+The solver requires a function with a single argument, `x`, and a gradient
+function with two arguments, `x` and `g`. If the function and gradient evalutions
+require more parameters, use, for example: 
+
+```julia
+julia> func(x,a,b,c) = a*x[1]^2 + (x[2]-b)^2 + c
+
+julia> const a = 5. ; const b = 2. ; const c = 3. ;
+
+julia> func(x) = func(x,a,b,c) 
+
+```
+To preserve performance it is fundamental to declare the parameters, in this
+case `a`, `b`, and `c`, as constants (using `const`), to guarantee their
+type-stability. This will allow the function specializations and compiler
+optimizations that make Julia fast. 
+
+The gradient function will be defined accordingly:
+
+```julia
+julia> function grad!(x,g,a,b)
+         g[1] = 2*a*x[1]
+         g[2] = 2*(x[2]-b)
+       end
+
+julia> grad!(x,g) = grad!(x,g,a,b) 
+
+```
+
+The function method which receives only the current point `x`, and the
+gradient method which receives only `x` and the gradient vector `g` are
+the ones actually invoked by the optimizer. 
+
+### Using anonymous closures 
+
+An anonymous closure is a function with a special syntax of the form 
+
+```julia
+x -> f(x)
+
+```
+which should be read as "given `x`, return `f(x)`". These anonymous functions can
+be provided directly as arguments to the solver, while providing an interface for 
+using external parameters. Considering the same function and gradient functions
+above, one use them directly as arguments for the solver:
+
+```julia
+julia> R = spgbox!(x, x -> func(x,a,b,c), (x,g) -> grad!(x,g,a,b))
+
+```
+where the second argument, `x -> func(x,a,b,c)` indicates that the objective
+function is an anonymous function that given `x` returns `f(x,a,b,c)`, and the gradient
+is evaluated by an anonymous function that, given `(x,g)` returns `grad!(x,g,a,b)`.  
+This syntax also preserves performance and does not require the parameters to be declared
+as constants. 
 
 
 

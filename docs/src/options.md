@@ -27,7 +27,7 @@ The available keywords are:
 | `eps`         | `Real` | Convergence criteria for the projected gradient norm. | `1e-5` |
 | `m`           | `Integer` | Number of non-monotone search steps.  | `10` |
 
-## Memory management 
+## Memory preallocation
 
 The SPGBox method requires four auxiliary vectors, three of them of
 length equal to the number of variables (`g`, `xn` and `gn`), 
@@ -100,7 +100,8 @@ julia> @btime spgbox!($x,func,grad!,aux=$auxvecs)
 
 While SPG is very memory efficient, pré-allocation of the arrays reduces
 significanltly the use of memory, which might be important for multiple
-executions of the the same code.
+executions of the the same code, for example in multi-start approach for
+global-minimum search.
 
 ### [Size and preallocation of `fprev`](@id fprev)
 
