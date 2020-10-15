@@ -11,3 +11,5 @@ Aux(n,m) = Aux( Vector{Float64}(undef,n),
                 Vector{Float64}(undef,n), 
                 Vector{Float64}(undef,n), 
                 Vector{Float64}(undef,m) )
+# The default value for m
+Aux(n) = Aux(n,10)
