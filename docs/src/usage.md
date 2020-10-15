@@ -19,7 +19,7 @@ julia> function grad!(x,g)
        end
 
 ```
-by Julia convention, to indicate that the gradient function modifies the vector `g`, we add
+By Julia convention, to indicate that the gradient function modifies the vector `g`, we add
 the `!` to its name, although this does not affect at all its behavior.
 
 ## Calling the solver, without bounds
