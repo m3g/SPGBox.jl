@@ -9,7 +9,7 @@ provided by defining an additional parameter-free method. For example:
 ```julia
 julia> func(x,a,b,c) = a*x[1]^2 + (x[2]-b)^2 + c
 
-julia> a = 5. ; b = 2. ; c = 3. ;
+julia> const a = 5. ; const b = 2. ; const c = 3. ;
 
 julia> func(x) = func(x,a,b,c) 
 
