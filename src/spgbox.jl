@@ -151,7 +151,7 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
       println(" t = ", t)
     end
 
-    fn = 1.1*fref
+    fn = +Inf
     while( fn > fref )
       for i in 1:n
         xn[i] = x[i] - t*g[i]
