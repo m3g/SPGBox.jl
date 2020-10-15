@@ -1,5 +1,6 @@
+using Pkg
+Pkg.add("Test","SPGBox")
 using Test
-
 using SPGBox
 
 @testset "simple polynomial" begin
