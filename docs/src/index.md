@@ -10,7 +10,7 @@ projected gradient methods on convex sets", SIAM Journal on Optimization
 
 ## How to install
 
-```julia
+```jldoctest
 julia> using Pkg
 
 julia> Pkg.add("SPGBox")
@@ -18,7 +18,7 @@ julia> Pkg.add("SPGBox")
 
 or, more concisely,
 
-```julia
+```jldoctest
 julia> ] add SPGBox
 
 ```
@@ -28,7 +28,7 @@ julia> ] add SPGBox
 Define the function to compute the objective function and the gradient,
 for example with:
 
-```julia
+```jldoctest
 julia> func(x) = x[1]^2 + x[2]^2
 
 julia> function grad!(x,g)
@@ -40,7 +40,7 @@ julia> function grad!(x,g)
 And the objective function can be minimized with optional box bounds.
 Here, with a lower bound of `2` for the first variable:
 
-```julia
+```jldoctest
 julia> x = 2 .+ rand(2)
 
 julia> spgbox!(x,func,grad!,l=[2.,-Inf])

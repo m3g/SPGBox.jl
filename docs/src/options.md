@@ -11,7 +11,7 @@ possibly non-monotone steps.
 
 These keywords provided to `spgbox!` with, for example:
 
-```julia
+```jldoctest
 julia> R = spgbox!(x,func,grad!,nitmax=1000)
 
 ```
@@ -40,7 +40,7 @@ preallocating the auxiliary vectors, initialize this data structure
 before calling `spgbox!` and pass the data structure using the
 `aux` argument. In brief, do, for 1 million variables:
 
-```julia
+```jldoctest
 julia> n = 1_000_000
 
 julia> auxvecs = SPGBox.Aux(n)
@@ -51,7 +51,7 @@ julia> R = spgbox!(x,func,grad!,aux=auxvecs)
 
 For example, let us minimize the sum of squares of one million variables:
 
-```julia
+```jldoctest
 julia> function func(x)
          f = 0.
          for i in 1:length(x)
@@ -76,7 +76,7 @@ julia> x = rand(n);
 
 Without preallocating the auxiliary arrays:
 
-```julia
+```jldoctest
 julia> using BenchmarkTools
 
 julia> @btime spgbox!($x,func,grad!)
@@ -86,13 +86,13 @@ julia> @btime spgbox!($x,func,grad!)
 
 Now we will preallocate all auxiliary arrays. 
 
-```julia
+```jldoctest
 julia> auxvecs = SPGBox.Aux(n);
 
 ```
 And these arrays will be passed as arguments to the `spgbox!` function:
 
-```julia
+```jldoctest
 julia> @btime spgbox!($x,func,grad!,aux=$auxvecs)
   6.429 ms (0 allocations: 0 bytes)
 
@@ -113,7 +113,7 @@ preallocated by `SPGBox.Aux`. By default, it is allocated to length
 user and preallocation will be done, the new `m` value must be provided
 to `SPGBox.Aux`, with:
 
-```julia
+```jldoctest
 julia> auxvecs = SPGBox.Aux(n,m)
 
 ```
