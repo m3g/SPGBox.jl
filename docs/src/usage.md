@@ -2,8 +2,7 @@
 
 ## Definition of the objective function and gradient functions
 
-A function must be defined receiving as argument the current point as a
-vector: 
+A function must be defined receiving as argument the current point as a vector: 
 
 ```jldoctest
 julia> func(x) = x[1]^2 + x[2]^2
@@ -181,15 +180,15 @@ x -> f(x)
 which should be read as "given `x`, return `f(x)`". These anonymous functions can
 be provided directly as arguments to the solver, while providing an interface for 
 using external parameters. Considering the same function and gradient functions
-above, one use them directly as arguments for the solver:
+above, one uses anonymous functions  directly as arguments in the solver call:
 
 ```jldoctest
 julia> R = spgbox!(x, x -> func(x,a,b,c), (x,g) -> grad!(x,g,a,b))
 
 ```
 where the second argument, `x -> func(x,a,b,c)` indicates that the objective
-function is an anonymous function that given `x` returns `f(x,a,b,c)`, and the gradient
-is evaluated by an anonymous function that, given `(x,g)` returns `grad!(x,g,a,b)`.  
+function is an anonymous function that, given `x`, returns `f(x,a,b,c)`. The gradient
+is evaluated by an anonymous function that, given `(x,g)`, returns `grad!(x,g,a,b)`.  
 This syntax also preserves performance and does not require the parameters to be declared
 as constants. 
 
