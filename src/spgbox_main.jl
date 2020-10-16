@@ -76,7 +76,7 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
                  nitmax :: Int64 = 100,
                  nfevalmax :: Int64 = 1000,
                  m :: Int64 = 10,
-                 aux :: Aux = Aux(length(x),m),
+                 vaux :: VAux = VAux(length(x),m),
                  iprint :: Int64 = 0,
                  project_x0 :: Bool = true)
 
@@ -84,23 +84,23 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
   n = length(x)
 
   # Auxiliary arrays (associate names and check dimensions)
-  if length(aux.g) == n
-    g = aux.g
+  if length(vaux.g) == n
+    g = vaux.g
   else
     error(" Auxiliar gradient vector g must be of the same length as x. ")
   end
-  if length(aux.xn) == n
-    xn = aux.xn
+  if length(vaux.xn) == n
+    xn = vaux.xn
   else
     error(" Auxiliar vector xn must be of the same length as x. ")
   end
-  if length(aux.gn) == n
-    gn = aux.gn
+  if length(vaux.gn) == n
+    gn = vaux.gn
   else
     error(" Auxiliar vector gn must be of the same length as x. ")
   end
-  if length(aux.fprev) == m
-    fprev = aux.fprev
+  if length(vaux.fprev) == m
+    fprev = vaux.fprev
   else
     error(" Auxiliar vector fprev must be of length m. ")
   end

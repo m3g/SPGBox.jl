@@ -35,17 +35,17 @@ and a vector of length equal to
 the number of non-monotone steps allowed, `fprev`, of dimension, `m` 
 (see [below](@ref fprev)). 
 
-These vectors are allocated in the `SPGBox.Aux` data structure. For
+These vectors are allocated in the `SPGBox.VAux` data structure. For
 preallocating the auxiliary vectors, initialize this data structure
 before calling `spgbox!` and pass the data structure using the
-`aux` argument. In brief, do, for 1 million variables:
+`vaux` argument. In brief, do, for 1 million variables:
 
 ```julia-repl
 julia> n = 1_000_000
 
-julia> auxvecs = SPGBox.Aux(n)
+julia> auxvecs = SPGBox.VAux(n)
 
-julia> R = spgbox!(x,func,grad!,aux=auxvecs)
+julia> R = spgbox!(x,func,grad!,vaux=auxvecs)
 
 ```
 
@@ -87,13 +87,13 @@ julia> @btime spgbox!($x,func,grad!)
 Now we will preallocate all auxiliary arrays. 
 
 ```julia-repl
-julia> auxvecs = SPGBox.Aux(n);
+julia> auxvecs = SPGBox.VAux(n);
 
 ```
 And these arrays will be passed as arguments to the `spgbox!` function:
 
 ```julia-repl
-julia> @btime spgbox!($x,func,grad!,aux=$auxvecs)
+julia> @btime spgbox!($x,func,grad!,vaux=$auxvecs)
   6.429 ms (0 allocations: 0 bytes)
 
 ```
@@ -108,13 +108,13 @@ global-minimum search.
 The auxiliary vector `fprev` stores the information of the function value of the
 last `m` function evaluations, which is the number of non-monotone
 steps allowed. Thus, it is a vector of size `m` which is also
-preallocated by `SPGBox.Aux`. By default, it is allocated to length
+preallocated by `SPGBox.VAux`. By default, it is allocated to length
 `10`, which is the default value for `m`. If `m` is modified by the
 user and preallocation will be done, the new `m` value must be provided
-to `SPGBox.Aux`, with:
+to `SPGBox.VAux`, with:
 
 ```julia-repl
-julia> auxvecs = SPGBox.Aux(n,m)
+julia> auxvecs = SPGBox.VAux(n,m)
 
 ```
 
