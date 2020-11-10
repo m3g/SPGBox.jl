@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>User guide · SPGBox.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.svg" alt="SPGBox.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">SPGBox.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Installation</a></li><li class="is-active"><a class="tocitem" href>User guide</a><ul class="internal"><li><a class="tocitem" href="#Definition-of-the-objective-function-and-gradient-functions"><span>Definition of the objective function and gradient functions</span></a></li><li><a class="tocitem" href="#Calling-the-solver,-without-bounds"><span>Calling the solver, without bounds</span></a></li><li><a class="tocitem" href="#Calling-the-solver,-with-box-bounds"><span>Calling the solver, with box bounds</span></a></li><li><a class="tocitem" href="#Result-data-structure-and-possible-outcomes"><span>Result data structure and possible outcomes</span></a></li><li><a class="tocitem" href="#Data-dependent-function-evaluation"><span>Data-dependent function evaluation</span></a></li><li><a class="tocitem" href="#Using-automatic-differentiation-(AD)"><span>Using automatic differentiation (AD)</span></a></li></ul></li><li><a class="tocitem" href="../options/">Options</a></li><li><a class="tocitem" href="../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>User guide</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>User guide</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/m3g/SPGBox/blob/master/docs/src/usage.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="User-guide"><a class="docs-heading-anchor" href="#User-guide">User guide</a><a id="User-guide-1"></a><a class="docs-heading-anchor-permalink" href="#User-guide" title="Permalink"></a></h1><h2 id="Definition-of-the-objective-function-and-gradient-functions"><a class="docs-heading-anchor" href="#Definition-of-the-objective-function-and-gradient-functions">Definition of the objective function and gradient functions</a><a id="Definition-of-the-objective-function-and-gradient-functions-1"></a><a class="docs-heading-anchor-permalink" href="#Definition-of-the-objective-function-and-gradient-functions" title="Permalink"></a></h2><p>A function must be defined receiving as argument the current point as a vector: </p><pre><code class="language-julia-repl">julia&gt; func(x) = x[1]^2 + x[2]^2
+</code></pre><p>And the gradient must receive as arguments the vector of variables and a vector which will be modified to contain the gradient at the current point:</p><pre><code class="language-julia-repl">julia&gt; function grad!(x,g)
+         g[1] = 2*x[1]
+         g[2] = 2*x[2]
+       end
+</code></pre><p>By Julia convention, to indicate that the gradient function modifies the vector <code>g</code>, we add the <code>!</code> to its name, although this does not affect at all its behavior.</p><h2 id="Calling-the-solver,-without-bounds"><a class="docs-heading-anchor" href="#Calling-the-solver,-without-bounds">Calling the solver, without bounds</a><a id="Calling-the-solver,-without-bounds-1"></a><a class="docs-heading-anchor-permalink" href="#Calling-the-solver,-without-bounds" title="Permalink"></a></h2><p>The solver <code>spgbox!</code>, which modifies the input value of <code>x</code>, has a minimal calling syntax of</p><pre><code class="language-julia-repl">julia&gt; x = rand(2)
+
+julia&gt; R = spgbox!(x,func,grad!)
+</code></pre><p>The results will be returned to the data structure <code>R</code> of type <code>SPGBoxResult</code>, and will be output as: </p><pre><code class="language-julia-repl">julia&gt; R = spgbox!(x,func,grad!)
+
+ SPGBOX RESULT: 
+
+ Convergence achieved. 
+
+ Final objective function value = 3.0
+ Best solution found = [ 1.4210854715202004e-14, 2.0]
+ Projected gradient norm = 1.4210854715202004e-13
+
+ Number of iterations = 3
+ Number of function evaluations = 5
+</code></pre><h2 id="Calling-the-solver,-with-box-bounds"><a class="docs-heading-anchor" href="#Calling-the-solver,-with-box-bounds">Calling the solver, with box bounds</a><a id="Calling-the-solver,-with-box-bounds-1"></a><a class="docs-heading-anchor-permalink" href="#Calling-the-solver,-with-box-bounds" title="Permalink"></a></h2><p>Box bounds can be provided by the optional keywords <code>l</code> and <code>u</code> for lower and upper bounds, respectively. These are vectors that will delimit the bounds for each variable. For example, assuming the same function and gradient functions defined in the example above, a lower bound will be set for the second variable:</p><pre><code class="language-julia-repl">
+julia&gt; R = spgbox!(x,func,grad!,l=[-Inf,5])
+
+ SPGBOX RESULT: 
+
+ Convergence achieved. 
+
+ Final objective function value = 12.0
+ Best solution found = [ 0.0, 5.0]
+ Projected gradient norm = 0.0
+
+ Number of iterations = 2
+ Number of function evaluations = 6
+</code></pre><p>Upper bounds can be similarly set with <code>u=[+Inf,-5]</code>, for example.</p><h2 id="Result-data-structure-and-possible-outcomes"><a class="docs-heading-anchor" href="#Result-data-structure-and-possible-outcomes">Result data structure and possible outcomes</a><a id="Result-data-structure-and-possible-outcomes-1"></a><a class="docs-heading-anchor-permalink" href="#Result-data-structure-and-possible-outcomes" title="Permalink"></a></h2><p>The minimization can result in a successful convergence, on in exceeded numbers of iterations or functional evaluations. These outcomes are explicit in the output printed (second line), and stored in the result structure, which contains the following data: </p><pre><code class="language-julia-repl">struct SPGBoxResult
+  x :: Vector{Float64}
+  f :: Float64
+  gnorm :: Float64
+  nit :: Int64
+  nfeval :: Int64
+  ierr :: Int64
+end</code></pre><p>The data can be accessed as usual, using, for example:</p><pre><code class="language-julia-repl">julia&gt; R.f
+12.0
+</code></pre><p>The data structure contains:</p><table><tr><th style="text-align: left">Variable name</th><th style="text-align: left">Meaning</th></tr><tr><td style="text-align: left"><code>x</code></td><td style="text-align: left">Best point found (solution if <code>ierr=0</code>)</td></tr><tr><td style="text-align: left"><code>f</code></td><td style="text-align: left">Best function value found.</td></tr><tr><td style="text-align: left"><code>gnorm</code></td><td style="text-align: left">Norm of gradient projected on the constraints.</td></tr><tr><td style="text-align: left"><code>nit</code></td><td style="text-align: left">Number of iterations performed.</td></tr><tr><td style="text-align: left"><code>nfeval</code></td><td style="text-align: left">Number of function evaluations.</td></tr><tr><td style="text-align: left"><code>ierr</code></td><td style="text-align: left">Exit status.</td></tr></table><p>The possible outcomes of <code>ierr</code> are:</p><table><tr><th style="text-align: left">Outcome</th><th style="text-align: left">Meaning</th></tr><tr><td style="text-align: left"><code>ierr=0</code></td><td style="text-align: left">Success: convergence achieved.</td></tr><tr><td style="text-align: left"><code>ierr=1</code></td><td style="text-align: left">Maximum number of iterations achieved.</td></tr><tr><td style="text-align: left"><code>ierr=2</code></td><td style="text-align: left">Maximum number of function evaluations achieved.</td></tr></table><p>The convergence criteria can be adjusted using optional keywords, as described in the <a href="../options/#Options">Options</a> section.</p><h2 id="Data-dependent-function-evaluation"><a class="docs-heading-anchor" href="#Data-dependent-function-evaluation">Data-dependent function evaluation</a><a id="Data-dependent-function-evaluation-1"></a><a class="docs-heading-anchor-permalink" href="#Data-dependent-function-evaluation" title="Permalink"></a></h2><p>If the function requires additional parameters, two strategies are possible while preserving performance: 1) Declare the parameters as constants and define an extra method, or 2) Pass the function as an anonymous closure. </p><h3 id="Constant-parameters-and-new-function-and-gradient-methods"><a class="docs-heading-anchor" href="#Constant-parameters-and-new-function-and-gradient-methods">Constant parameters and new function and gradient methods</a><a id="Constant-parameters-and-new-function-and-gradient-methods-1"></a><a class="docs-heading-anchor-permalink" href="#Constant-parameters-and-new-function-and-gradient-methods" title="Permalink"></a></h3><p>The solver requires a function with a single argument, <code>x</code>, and a gradient function with two arguments, <code>x</code> and <code>g</code>. If the function and gradient evalutions require more parameters, use, for example: </p><pre><code class="language-julia-repl">julia&gt; func(x,a,b,c) = a*x[1]^2 + (x[2]-b)^2 + c
+
+julia&gt; const a = 5. ; const b = 2. ; const c = 3. ;
+
+julia&gt; func(x) = func(x,a,b,c) 
+</code></pre><p>To preserve performance it is fundamental to declare the parameters, in this case <code>a</code>, <code>b</code>, and <code>c</code>, as constants (using <code>const</code>), to guarantee their type-stability. This will allow the function specializations and compiler optimizations that make Julia fast. </p><p>The gradient function will be defined accordingly:</p><pre><code class="language-julia-repl">julia&gt; function grad!(x,g,a,b)
+         g[1] = 2*a*x[1]
+         g[2] = 2*(x[2]-b)
+       end
+
+julia&gt; grad!(x,g) = grad!(x,g,a,b) 
+</code></pre><p>The function method which receives only the current point <code>x</code>, and the gradient method which receives only <code>x</code> and the gradient vector <code>g</code> are the ones actually invoked by the solver.</p><h3 id="Using-anonymous-closures"><a class="docs-heading-anchor" href="#Using-anonymous-closures">Using anonymous closures</a><a id="Using-anonymous-closures-1"></a><a class="docs-heading-anchor-permalink" href="#Using-anonymous-closures" title="Permalink"></a></h3><p>An anonymous closure is a function with a special syntax of the form </p><pre><code class="language-julia">x -&gt; f(x)
+</code></pre><p>which should be read as &quot;given <code>x</code>, return <code>f(x)</code>&quot;. These anonymous functions can be provided directly as arguments to the solver, while providing an interface for  using external parameters. Considering the same function and gradient functions above, one uses anonymous functions  directly as arguments in the solver call:</p><pre><code class="language-julia-repl">julia&gt; R = spgbox!(x, x -&gt; func(x,a,b,c), (x,g) -&gt; grad!(x,g,a,b))
+</code></pre><p>where the second argument, <code>x -&gt; func(x,a,b,c)</code> indicates that the objective function is an anonymous function that, given <code>x</code>, returns <code>f(x,a,b,c)</code>. The gradient is evaluated by an anonymous function that, given <code>(x,g)</code>, returns <code>grad!(x,g,a,b)</code>.   This syntax also preserves performance and does not require the parameters to be declared as constants. </p><h2 id="Using-automatic-differentiation-(AD)"><a class="docs-heading-anchor" href="#Using-automatic-differentiation-(AD)">Using automatic differentiation (AD)</a><a id="Using-automatic-differentiation-(AD)-1"></a><a class="docs-heading-anchor-permalink" href="#Using-automatic-differentiation-(AD)" title="Permalink"></a></h2><p>Julia provides various packages for automatic differentiation, which can be used in combination with <code>SPGBox</code>. Here, we illustrate the use of <a href="http://www.juliadiff.org/ReverseDiff.jl/">ReverseDiff</a>. The only two points that must be taken into consideration are: 1) The AD function must modify an existing gradient vector and 2) use anonymous closures to provide the gradient calculation function to the solver.</p><p>Here, a simple example, in which we use <code>ReverseDiff.gradient!</code> to compute the derivative of a function which is the sum of squares of the variables:</p><pre><code class="language-julia-repl">julia&gt; using SPGBox, ReverseDiff
+
+julia&gt; function func(x)
+         f = 0.
+         for i in 1:length(x)
+           f += x[i]^2
+         end
+         f
+       end
+
+julia&gt; x = rand(2)
+
+julia&gt; spgbox!(x,func,(x,g) -&gt; ReverseDiff.gradient!(g,func,x), l=[-Inf,2.])
+
+ SPGBOX RESULT:
+
+ Convergence achieved.
+
+ Final objective function value = 4.0
+ Best solution found = [ 0.0, 2.0]
+ Projected gradient norm = 0.0
+
+ Number of iterations = 0
+ Number of function evaluations = 1
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Installation</a><a class="docs-footer-nextpage" href="../options/">Options »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 10 November 2020 16:03">Tuesday 10 November 2020</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
