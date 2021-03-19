@@ -14,7 +14,7 @@ makedocs(
     ]
 )
 deploydocs(
-    repo = "github.com/m3g/SPGBox.git",
+    repo = "github.com/m3g/SPGBox.jl.git",
     target = "build",
     branch = "gh-pages",
     versions = ["stable" => "v^", "v#.#" ],
