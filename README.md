@@ -13,7 +13,7 @@ projected gradient methods on convex sets", SIAM Journal on Optimization
 ## Documentation
 
 The complete documentation can be found at: 
-https://m3g.github.io/SPGBox/stable/
+https://m3g.github.io/SPGBox.jl/stable/
 
 ## How to install
 
