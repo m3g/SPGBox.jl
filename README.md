@@ -36,9 +36,9 @@ Define the function to compute the objective function and the gradient,
 for example with:
 
 ```julia
-julia> func(x) = x[1]^2 + x[2]^2
+julia> f(x) = x[1]^2 + x[2]^2
 
-julia> function grad!(x,g)
+julia> function g!(x,g)
          g[1] = 2*x[1]
          g[2] = 2*x[2]
        end
@@ -50,7 +50,7 @@ Here, with a lower bound of `2` for the first variable:
 ```julia
 julia> x = 2 .+ rand(2)
 
-julia> spgbox!(x,func,grad!,l=[2.,-Inf])
+julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 
  SPGBOX RESULT:
 
