@@ -165,7 +165,7 @@ function spgbox!(
     if iprint > 0
       println("----------------------------------------------------------- ")
       println(" Iteration: ", nit )
-      println(" x = ", x[1], " ... ", x[n] )
+      println(" x = ", x[begin], " ... ", x[end] )
       println(" Objective function value = ", fcurrent)
     end
     
@@ -209,12 +209,12 @@ function spgbox!(
         end
       end 
       if iprint > 2
-        println(" xn = ", xn[1], xn[2] )
+        println(" xn = ", xn[begin], xn[begin+1] )
       end
       nfeval = nfeval + 1
       fn = f(xn)
       if iprint > 2
-        println(" f[xn] = ", fn, " fref = ", fref )
+        println(" f[end] = ", fn, " fref = ", fref )
       end
       # Maximum number of function evaluations achieved
       if nfeval > nfevalmax 
