@@ -90,6 +90,9 @@ function spgbox!(
     vaux=vaux, iprint=iprint, project_x0=project_x0
   )
 end
+#
+# call with lower and upper as keyword parameters
+#
 function spgbox!(
   f::Function,
   g!::Function,
@@ -109,32 +112,18 @@ function spgbox!(
   n = length(x)
 
   # Auxiliary arrays (associate names and check dimensions)
-  if length(vaux.g) == n
-    g = vaux.g
-  else
-    error(" Auxiliar gradient vector `g` must be of the same length as `x`. ")
-  end
-  if length(vaux.xn) == n
-    xn = vaux.xn
-  else
-    error(" Auxiliar vector `xn` must be of the same length as `x`. ")
-  end
-  if length(vaux.gn) == n
-    gn = vaux.gn
-  else
-    error(" Auxiliar vector `gn` must be of the same length as `x`. ")
-  end
-  if length(vaux.fprev) == m
-    fprev = vaux.fprev
-  else
-    error(" Auxiliar vector `fprev` must be of length `m`. ")
-  end
+  g = vaux.g
+  xn = vaux.xn
+  gn = vaux.gn
+  fprev = vaux.fprev
+  @assert length(g) == n "Auxiliar gradient vector `g` must be of the same length as `x`"
+  @assert length(xn) == n "Auxiliar vector `xn` must be of the same length as `x`"
+  @assert length(gn) == n "Auxiliar vector `gn` must be of the same length as `x`"
+  @assert length(fprev) == m "Auxiliar vector `fprev` must be of length `m`"
 
   # Check if bounds are defined, project or not the initial point on them
   if lower != nothing
-    if length(lower) != n
-      error(" Lower bound vector `lower` must be of the same length than x, got: ",length(lower))
-    end
+    @assert length(lower) == n "Lower bound vector `lower` must be of the same length than x, got: $(length(lower))"
     if project_x0
       @. x = max(x,lower)
     else
@@ -146,9 +135,7 @@ function spgbox!(
     end
   end
   if upper != nothing
-    if length(upper) != n
-      error(" Upper bound vector `upper` must be of the same length than `x`, got: ",length(upper))
-    end
+    @assert length(upper) == n "Upper bound vector `upper` must be of the same length than `x`, got: $(length(upper))"
     if project_x0
       @. x = min(x,upper)
     else
@@ -258,7 +245,7 @@ function spgbox!(
     for i in firstindex(fprev):lastindex(fprev)-1
       fprev[i] = fprev[i+1]
     end
-    fprev[m] = fcurrent
+    fprev[end] = fcurrent
     nit = nit + 1
   end
 
