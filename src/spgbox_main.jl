@@ -9,19 +9,19 @@
 # Translated to Julia by L. Martínez (IQ-UNICAMP)
 #
 """
+```
+spgbox!(f, g!, x::AbstractVector{Real}, lower::AbstractVector{Real}, upper::AbstractVector{Real}; options...)`
+```
 
-`spgbox!(f, g!, x::AbstractVector{Real}, lower::AbstractVector{Real}, upper::AbstractVector{Real})`
+```
+spgbox!(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options..)`
+```
 
-Minimizes function `f` starting from initial point `x`, given
-the function to compute the gradient, `g!`. `f` must be of the form 
-`f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient
-vector to be modified. It modifies the `x` vector, which will contain the
-best solution found. 
+Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found. 
 
-Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`.
+Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`, which can be provided as the fourth and fifth arguments or with keyword parameters.
 
-Returns a structure of type `SPGBoxResult`, containing the best solution found
-in `x` and the final objective function in `f`.
+Returns a structure of type `SPGBoxResult`, containing the best solution found in `x` and the final objective function in `f`.
 
 # Examples
 ```jldocstest
@@ -73,15 +73,35 @@ julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 function spgbox!(
   f::Function,
   g!::Function,
+  x::AbstractVector{Float64},
+  lower::Union{Nothing,AbstractVector{Float64}} = nothing, 
+  upper::Union{Nothing,AbstractVector{Float64}} = nothing; 
+  eps::Float64 = 1.e-5,
+  nitmax::Int = 100,
+  nfevalmax::Int = 1000,
+  m::Int = 10,
+  vaux::VAux = VAux(length(x),m),
+  iprint::Int = 0,
+  project_x0::Bool = true
+) 
+  return spgbox!(
+    f,g!,x,lower=lower,upper=upper,
+    eps=eps, nitmax=nitmax, nfevalmax=nfevalmax, m=m, 
+    vaux=vaux, iprint=iprint, project_x0=project_x0
+  )
+end
+function spgbox!(
+  f::Function,
+  g!::Function,
   x::AbstractVector{Float64};
   lower::Union{Nothing,AbstractVector{Float64}} = nothing, 
   upper::Union{Nothing,AbstractVector{Float64}} = nothing, 
   eps::Float64 = 1.e-5,
-  nitmax::Int64 = 100,
-  nfevalmax::Int64 = 1000,
-  m::Int64 = 10,
+  nitmax::Int = 100,
+  nfevalmax::Int = 1000,
+  m::Int = 10,
   vaux::VAux = VAux(length(x),m),
-  iprint::Int64 = 0,
+  iprint::Int = 0,
   project_x0::Bool = true
 )
 
