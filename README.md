@@ -27,7 +27,6 @@ or, more concisely,
 
 ```julia-repl
 julia> ] add SPGBox
-
 ```
 
 ## Quick usage example:
