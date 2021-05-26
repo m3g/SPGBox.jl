@@ -20,15 +20,15 @@ optimization method.
 
 """ 
 struct SPGBoxResult
-  x :: Vector{Float64}
-  f :: Float64
-  gnorm :: Float64
-  nit :: Int64
-  nfeval :: Int64
-  ierr :: Int64 
+  x::Vector{Float64}
+  f::Float64
+  gnorm::Float64
+  nit::Int64
+  nfeval::Int64
+  ierr::Int64 
 end
 
-function Base.show( io :: IO, R :: SPGBoxResult )
+function Base.show(io::IO, R::SPGBoxResult )
   println("")
   println(" SPGBOX RESULT: ")
   println("")

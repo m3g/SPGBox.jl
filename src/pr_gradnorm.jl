@@ -5,48 +5,48 @@
 # needed such that the lower and upper bounds vectors can 
 # be of type Nothing if those bounds are not defined
 #
-function pr_gradnorm(x,g,l,u)
-  if l == nothing && u == nothing 
+function pr_gradnorm(g,x,lower,upper)
+  if lower == nothing && upper == nothing 
     return pr_gradnorm_no_bounds(g)
-  elseif l == nothing 
-    pr_gradnorm_upper(x,g,u)
-  elseif u == nothing 
-    return pr_gradnorm_lower(x,g,l)
+  elseif lower == nothing 
+    pr_gradnorm_upper(g,x,upper)
+  elseif upper == nothing 
+    return pr_gradnorm_lower(g,x,lower)
   else
-    return pr_gradnorm_both_bounds(x,g,l,u)
+    return pr_gradnorm_both_bounds(g,x,lower,upper)
   end
 end
 # Both bounds
-function pr_gradnorm_both_bounds(x,g,l,u)
-  gnorm = 0.
-  for i in 1:length(x)
-    z = max(l[i], min(u[i], x[i]-g[i])) - x[i]
+function pr_gradnorm_both_bounds(g,x,lower,upper)
+  gnorm = zero(eltype(x))
+  for i in eachindex(x)
+    z = max(lower[i], min(upper[i], x[i]-g[i])) - x[i]
     gnorm = max(gnorm, abs(z))
   end
   return gnorm
 end
 # Only lower
-function pr_gradnorm_lower(x,g,l)
-  gnorm = 0.
-  for i in 1:length(x)
-    z = max(l[i], x[i]-g[i]) - x[i]
+function pr_gradnorm_lower(g,x,lower)
+  gnorm = zero(eltype(x))
+  for i in eachindex(x)
+    z = max(lower[i], x[i]-g[i]) - x[i]
     gnorm = max(gnorm, abs(z))
   end
   return gnorm
 end
 # Only upper
-function pr_gradnorm_upper(x,g,u)
-  gnorm = 0.
-  for i in 1:length(x)
-    z = min(u[i], x[i]-g[i]) - x[i]
+function pr_gradnorm_upper(g,x,upper)
+  gnorm = zero(eltype(x))
+  for i in eachindex(x)
+    z = min(upper[i], x[i]-g[i]) - x[i]
     gnorm = max(gnorm, abs(z))
   end
   return gnorm
 end
 # No bounds
 function pr_gradnorm_no_bounds(g)
-  gnorm = 0.
-  for i in 1:length(g)
+  gnorm = zero(eltype(g))
+  for i in eachindex(g)
     gnorm = max(gnorm, abs(g[i]))
   end
   return gnorm

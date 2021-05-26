@@ -12,7 +12,7 @@ possibly non-monotone steps.
 These keywords provided to `spgbox!` with, for example:
 
 ```julia-repl
-julia> R = spgbox!(x,func,grad!,nitmax=1000)
+julia> R = spgbox!(f,g!,x,nitmax=1000)
 
 ```
 
@@ -45,28 +45,28 @@ julia> n = 1_000_000
 
 julia> auxvecs = SPGBox.VAux(n)
 
-julia> R = spgbox!(x,func,grad!,vaux=auxvecs)
+julia> R = spgbox!(f,g!,x,vaux=auxvecs)
 
 ```
 
 For example, let us minimize the sum of squares of one million variables:
 
 ```julia-repl
-julia> function func(x)
+julia> function f(x)
          f = 0.
-         for i in 1:length(x)
+         for i in eachindex(x)
            f += x[i]^2
          end
          f
        end
-func (generic function with 2 methods)
+f (generic function with 1 methods)
 
-julia> function grad!(x,g)
-         for i in 1:length(x)
+julia> function g!(g,x)
+         for i in eachindex(x)
            g[i] = 2*x[i]
          end
        end
-grad! (generic function with 2 methods)
+g! (generic function with 1 methods)
 
 julia> n = 1_000_000
 
@@ -79,7 +79,7 @@ Without preallocating the auxiliary arrays:
 ```julia-repl
 julia> using BenchmarkTools
 
-julia> @btime spgbox!($x,func,grad!)
+julia> @btime spgbox!($f,$g!,$x)
   6.639 ms (10 allocations: 22.89 MiB)
 
 ```
@@ -93,7 +93,7 @@ julia> auxvecs = SPGBox.VAux(n);
 And these arrays will be passed as arguments to the `spgbox!` function:
 
 ```julia-repl
-julia> @btime spgbox!($x,func,grad!,vaux=$auxvecs)
+julia> @btime spgbox!($f,$g!,$x,vaux=$auxvecs)
   6.429 ms (0 allocations: 0 bytes)
 
 ```

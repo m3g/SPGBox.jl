@@ -10,23 +10,24 @@
 #
 """
 
-`spgbox!(x :: Vector{Real}, func, grad!; l :: Vector{Real}, u :: Vector{Real})`
+`spgbox!(f, g!, x::AbstractVector{Real}, lower::AbstractVector{Real}, upper::AbstractVector{Real})`
 
-Minimizes function `func` starting from initial point `x`, given
-the function to compute the gradient, `grad!`. `func` must be of the form 
-`func(x)`, and `grad!` of the form `grad!(x,g)`, where `g` is the gradient
-vector to be modified. 
+Minimizes function `f` starting from initial point `x`, given
+the function to compute the gradient, `g!`. `f` must be of the form 
+`f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient
+vector to be modified. It modifies the `x` vector, which will contain the
+best solution found. 
 
-Optional lower and upper box bounds can be provided using optional arguments `l` and `u`.
+Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`.
 
 Returns a structure of type `SPGBoxResult`, containing the best solution found
 in `x` and the final objective function in `f`.
 
 # Examples
 ```jldocstest
-julia> func(x) = x[1]^2 + x[2]^2
+julia> f(x) = x[1]^2 + x[2]^2
 
-julia> function grad!(x,g)
+julia> function g!(g,x)
          g[1] = 2*x[1]
          g[2] = 2*x[2]
        end
@@ -36,7 +37,7 @@ julia> function grad!(x,g)
 ```jldocstest
 julia> x = rand(2)
 
-julia> spgbox!(x,func,grad!)
+julia> spgbox!(f,g!,x)
 
  SPGBOX RESULT: 
 
@@ -55,7 +56,7 @@ julia> spgbox!(x,func,grad!)
 ```jldocstest
 julia> x = 2 .+ rand(2)
 
-julia> spgbox!(x,func,grad!,l=[2.,-Inf])
+julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 
  SPGBOX RESULT:
 
@@ -69,16 +70,20 @@ julia> spgbox!(x,func,grad!,l=[2.,-Inf])
  Number of function evaluations = 3
 ```
 """
-function spgbox!(x :: AbstractVector{Float64}, func, grad!;
-                 l :: Union{Nothing,AbstractVector{Float64}} = nothing, 
-                 u :: Union{Nothing,AbstractVector{Float64}} = nothing, 
-                 eps :: Float64 = 1.e-5,
-                 nitmax :: Int64 = 100,
-                 nfevalmax :: Int64 = 1000,
-                 m :: Int64 = 10,
-                 vaux :: VAux = VAux(length(x),m),
-                 iprint :: Int64 = 0,
-                 project_x0 :: Bool = true)
+function spgbox!(
+  f::Function,
+  g!::Function,
+  x::AbstractVector{Float64};
+  lower::Union{Nothing,AbstractVector{Float64}} = nothing, 
+  upper::Union{Nothing,AbstractVector{Float64}} = nothing, 
+  eps::Float64 = 1.e-5,
+  nitmax::Int64 = 100,
+  nfevalmax::Int64 = 1000,
+  m::Int64 = 10,
+  vaux::VAux = VAux(length(x),m),
+  iprint::Int64 = 0,
+  project_x0::Bool = true
+)
 
   # Number of variables
   n = length(x)
@@ -87,49 +92,49 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
   if length(vaux.g) == n
     g = vaux.g
   else
-    error(" Auxiliar gradient vector g must be of the same length as x. ")
+    error(" Auxiliar gradient vector `g` must be of the same length as `x`. ")
   end
   if length(vaux.xn) == n
     xn = vaux.xn
   else
-    error(" Auxiliar vector xn must be of the same length as x. ")
+    error(" Auxiliar vector `xn` must be of the same length as `x`. ")
   end
   if length(vaux.gn) == n
     gn = vaux.gn
   else
-    error(" Auxiliar vector gn must be of the same length as x. ")
+    error(" Auxiliar vector `gn` must be of the same length as `x`. ")
   end
   if length(vaux.fprev) == m
     fprev = vaux.fprev
   else
-    error(" Auxiliar vector fprev must be of length m. ")
+    error(" Auxiliar vector `fprev` must be of length `m`. ")
   end
 
   # Check if bounds are defined, project or not the initial point on them
-  if l != nothing
-    if length(l) != n
-      error(" Lower bound vector l must be of the same length than x, got: ",length(l))
+  if lower != nothing
+    if length(lower) != n
+      error(" Lower bound vector `lower` must be of the same length than x, got: ",length(lower))
     end
     if project_x0
-      @. x = max(x,l)
+      @. x = max(x,lower)
     else
-      for i in 1:length(x)
-        if x[i] < l[i]
-          error(" Initial value of variable $i smaller than lower bound, and project_x0 is set to false. ")
+      for i in eachindex(x)
+        if x[i] < lower[i]
+          error(" Initial value of variable $i smaller than lower bound, and `project_x0` is set to `false`. ")
         end
       end
     end
   end
-  if u != nothing
-    if length(u) != n
-      error(" Upper bound vector u must be of the same length than x, got: ",length(u))
+  if upper != nothing
+    if length(upper) != n
+      error(" Upper bound vector `upper` must be of the same length than `x`, got: ",length(upper))
     end
     if project_x0
-      @. x = min(x,u)
+      @. x = min(x,upper)
     else
-      for i in 1:length(x)
-        if x[i] > l[i]
-          error(" Initial value of variable $i greater than upper bound, and project_x0 is set to false. ")
+      for i in eachindex(x)
+        if x[i] > lower[i]
+          error(" Initial value of variable $i greater than upper bound, and `project_x0` is set to `false`. ")
         end
       end
     end
@@ -137,13 +142,13 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
 
   # Objective function at initial point
   nfeval = 1
-  f = func(x)
-  grad!(x,g)
-  gnorm = pr_gradnorm(x,g,l,u)
+  fcurrent = f(x)
+  g!(g,x)
+  gnorm = pr_gradnorm(g,x,lower,upper)
 
   tspg = 1.
-  for i in 1:m
-    fprev[i] = f
+  for i in eachindex(fprev)
+    fprev[i] = fcurrent
   end
 
   # Iteration counter
@@ -154,11 +159,11 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
       println("----------------------------------------------------------- ")
       println(" Iteration: ", nit )
       println(" x = ", x[1], " ... ", x[n] )
-      println(" Objective function value = ", f)
+      println(" Objective function value = ", fcurrent)
     end
     
     # Compute gradient norm
-    gnorm = pr_gradnorm(x,g,l,u)
+    gnorm = pr_gradnorm(g,x,lower,upper)
 
     if iprint > 0
       println(" ")
@@ -168,12 +173,12 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
 
     # Stopping criteria
     if gnorm <= eps
-      ierr= 0
-      return SPGBoxResult(x,f,gnorm,nit,nfeval,ierr)
+      ierr = 0
+      return SPGBoxResult(x,fcurrent,gnorm,nit,nfeval,ierr)
     end
     if nfeval >= nfevalmax
-      ierr= 2
-      return SPGBoxResult(x,f,gnorm,nit,nfeval,ierr)
+      ierr = 2
+      return SPGBoxResult(x,fcurrent,gnorm,nit,nfeval,ierr)
     end
 
     t = tspg
@@ -187,36 +192,36 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
 
     fn = +Inf
     while( fn > fref )
-      for i in 1:n
+      for i in eachindex(x)
         xn[i] = x[i] - t*g[i]
-        if u != nothing
-          xn[i] = min(xn[i],u[i])
+        if upper != nothing
+          xn[i] = min(xn[i],upper[i])
         end
-        if l != nothing
-          xn[i] = max(xn[i],l[i])
+        if lower != nothing
+          xn[i] = max(xn[i],lower[i])
         end
       end 
       if iprint > 2
         println(" xn = ", xn[1], xn[2] )
       end
       nfeval = nfeval + 1
-      fn = func(xn)
+      fn = f(xn)
       if iprint > 2
         println(" f[xn] = ", fn, " fref = ", fref )
       end
       # Maximum number of function evaluations achieved
       if nfeval > nfevalmax 
         ierr = 2
-        return SPGBoxResult(x,f,gnorm,nit,nfeval,ierr)
+        return SPGBoxResult(x,fcurrent,gnorm,nit,nfeval,ierr)
       end
       # Reduce region
       t = t/2
     end
 
-    grad!(xn,gn)
+    g!(gn,xn)
     num = 0.
     den = 0.
-    for i in 1:n
+    for i in eachindex(x)
       num = num + (xn[i]-x[i])^2
       den = den + (xn[i]-x[i])*(gn[i]-g[i])
     end
@@ -225,21 +230,21 @@ function spgbox!(x :: AbstractVector{Float64}, func, grad!;
     else
       tspg =  min(1.e3,num/den)
     end
-    f = fn
-    for i in 1:n
+    fcurrent = fn
+    for i in eachindex(x)
       x[i] = xn[i]
       g[i] = gn[i]
     end
-    for i in 1:m-1
+    for i in firstindex(fprev):lastindex(fprev)-1
       fprev[i] = fprev[i+1]
     end
-    fprev[m] = f
+    fprev[m] = fcurrent
     nit = nit + 1
   end
 
   # Maximum number of iterations achieved
   ierr = 1
-  return SPGBoxResult(x,f,gnorm,nit,nfeval,ierr)
+  return SPGBoxResult(x,fcurrent,gnorm,nit,nfeval,ierr)
 
 end
 

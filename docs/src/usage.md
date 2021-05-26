@@ -5,7 +5,7 @@
 A function must be defined receiving as argument the current point as a vector: 
 
 ```julia-repl
-julia> func(x) = x[1]^2 + x[2]^2
+julia> f(x) = x[1]^2 + x[2]^2
 
 ```
 
@@ -13,7 +13,7 @@ And the gradient must receive as arguments the vector of variables and a
 vector which will be modified to contain the gradient at the current point:
 
 ```julia-repl
-julia> function grad!(x,g)
+julia> function g!(g,x)
          g[1] = 2*x[1]
          g[2] = 2*x[2]
        end
@@ -30,7 +30,7 @@ minimal calling syntax of
 ```julia-repl
 julia> x = rand(2)
 
-julia> R = spgbox!(x,func,grad!)
+julia> R = spgbox!(f,g!,x)
 
 ```
 
@@ -38,7 +38,7 @@ The results will be returned to the data structure `R` of type
 `SPGBoxResult`, and will be output as: 
 
 ```julia-repl
-julia> R = spgbox!(x,func,grad!)
+julia> R = spgbox!(f,g!,x)
 
  SPGBOX RESULT: 
 
@@ -63,7 +63,7 @@ bound will be set for the second variable:
 
 ```julia-repl
 
-julia> R = spgbox!(x,func,grad!,l=[-Inf,5])
+julia> R = spgbox!(f,g!,x,lower=[-Inf,5])
 
  SPGBOX RESULT: 
 
@@ -78,7 +78,7 @@ julia> R = spgbox!(x,func,grad!,l=[-Inf,5])
 
 ```
 
-Upper bounds can be similarly set with `u=[+Inf,-5]`, for example.
+Upper bounds can be similarly set with `upper=[+Inf,-5]`, for example.
 
 ## Result data structure and possible outcomes
 
@@ -141,11 +141,11 @@ function with two arguments, `x` and `g`. If the function and gradient evalution
 require more parameters, use, for example: 
 
 ```julia-repl
-julia> func(x,a,b,c) = a*x[1]^2 + (x[2]-b)^2 + c
+julia> f(x,a,b,c) = a*x[1]^2 + (x[2]-b)^2 + c
 
 julia> const a = 5. ; const b = 2. ; const c = 3. ;
 
-julia> func(x) = func(x,a,b,c) 
+julia> f(x) = f(x,a,b,c) 
 
 ```
 To preserve performance it is fundamental to declare the parameters, in this
@@ -156,12 +156,12 @@ optimizations that make Julia fast.
 The gradient function will be defined accordingly:
 
 ```julia-repl
-julia> function grad!(x,g,a,b)
+julia> function g!(g,x,a,b)
          g[1] = 2*a*x[1]
          g[2] = 2*(x[2]-b)
        end
 
-julia> grad!(x,g) = grad!(x,g,a,b) 
+julia> grad!(g,x) = grad!(g,x,a,b) 
 
 ```
 
@@ -183,12 +183,12 @@ using external parameters. Considering the same function and gradient functions
 above, one uses anonymous functions  directly as arguments in the solver call:
 
 ```julia-repl
-julia> R = spgbox!(x, x -> func(x,a,b,c), (x,g) -> grad!(x,g,a,b))
+julia> R = spgbox!(x -> f(x,a,b,c), (g,x) -> g!(g,x,a,b), x)
 
 ```
-where the second argument, `x -> func(x,a,b,c)` indicates that the objective
+where the first argument, `x -> f(x,a,b,c)` indicates that the objective
 function is an anonymous function that, given `x`, returns `f(x,a,b,c)`. The gradient
-is evaluated by an anonymous function that, given `(x,g)`, returns `grad!(x,g,a,b)`.  
+is evaluated by an anonymous function that, given `(g,x)`, returns `grad!(g,x,a,b)`.  
 This syntax also preserves performance and does not require the parameters to be declared
 as constants. 
 
@@ -208,9 +208,9 @@ the variables:
 ```julia-repl
 julia> using SPGBox, ReverseDiff
 
-julia> function func(x)
+julia> function f(x)
          f = 0.
-         for i in 1:length(x)
+         for i in eachindex(x)
            f += x[i]^2
          end
          f
@@ -218,7 +218,7 @@ julia> function func(x)
 
 julia> x = rand(2)
 
-julia> spgbox!(x,func,(x,g) -> ReverseDiff.gradient!(g,func,x), l=[-Inf,2.])
+julia> spgbox!(f, (g,x) -> ReverseDiff.gradient!(g,f,x), x, lower=[-Inf,2.])
 
  SPGBOX RESULT:
 
