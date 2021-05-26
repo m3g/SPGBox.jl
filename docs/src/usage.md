@@ -81,6 +81,14 @@ julia> R = spgbox!(f,g!,x,lower=[-Inf,5])
 
 Upper bounds can be similarly set with `upper=[+Inf,-5]`, for example.
 
+Note, the bounds can also be provided as non-keyword parameters, with:
+```
+julia> lower = [-Inf,5]; upper = [+Inf, -2];
+
+julia> R = spgbox!(f,g!,x,lower,upper)
+
+```
+
 ## Result data structure and possible outcomes
 
 The minimization can result in a successful convergence, on in exceeded
