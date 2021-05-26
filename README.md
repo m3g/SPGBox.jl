@@ -17,7 +17,7 @@ https://m3g.github.io/SPGBox.jl/stable/
 
 ## How to install
 
-```julia
+```julia-repl
 julia> using Pkg
 
 julia> Pkg.add("SPGBox")
@@ -25,7 +25,7 @@ julia> Pkg.add("SPGBox")
 
 or, more concisely,
 
-```julia
+```julia-repl
 julia> ] add SPGBox
 
 ```
@@ -35,7 +35,7 @@ julia> ] add SPGBox
 Define the function to compute the objective function and the gradient,
 for example with:
 
-```julia
+```julia-repl
 julia> f(x) = x[1]^2 + x[2]^2
 
 julia> function g!(x,g)
@@ -47,7 +47,7 @@ julia> function g!(x,g)
 And the objective function can be minimized with optional box bounds.
 Here, with a lower bound of `2` for the first variable:
 
-```julia
+```julia-repl
 julia> x = 2 .+ rand(2)
 
 julia> spgbox!(f,g!,x,lower=[2.,-Inf])
