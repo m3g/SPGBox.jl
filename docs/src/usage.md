@@ -5,7 +5,7 @@
 A function must be defined receiving as argument the current point as a vector: 
 
 ```julia-repl
-julia> f(x) = x[1]^2 + x[2]^2
+julia> f(x) = x[1]^2 + (x[2]-2)^2
 
 ```
 
@@ -15,7 +15,7 @@ vector which will be modified to contain the gradient at the current point:
 ```julia-repl
 julia> function g!(g,x)
          g[1] = 2*x[1]
-         g[2] = 2*x[2]
+         g[2] = 2*(x[2]-2)
        end
 
 ```
@@ -28,7 +28,7 @@ The solver `spgbox!`, which modifies the input value of `x`, has a
 minimal calling syntax of
 
 ```julia-repl
-julia> x = rand(2)
+julia> x = rand(2);
 
 julia> R = spgbox!(f,g!,x)
 
@@ -40,16 +40,16 @@ The results will be returned to the data structure `R` of type
 ```julia-repl
 julia> R = spgbox!(f,g!,x)
 
- SPGBOX RESULT: 
+ SPGBOX RESULT:
 
- Convergence achieved. 
+ Convergence achieved.
 
- Final objective function value = 3.0
- Best solution found = [ 1.4210854715202004e-14, 2.0]
- Projected gradient norm = 1.4210854715202004e-13
+ Final objective function value = 0.0
+ Best solution found = [ 0.0, 2.0]
+ Projected gradient norm = 0.0
 
- Number of iterations = 3
- Number of function evaluations = 5
+ Number of iterations = 2
+ Number of function evaluations = 3
 
 ```
 
@@ -62,6 +62,7 @@ function and gradient functions defined in the example above, a lower
 bound will be set for the second variable:
 
 ```julia-repl
+julia> x = rand(2);
 
 julia> R = spgbox!(f,g!,x,lower=[-Inf,5])
 
@@ -69,12 +70,12 @@ julia> R = spgbox!(f,g!,x,lower=[-Inf,5])
 
  Convergence achieved. 
 
- Final objective function value = 12.0
+ Final objective function value = 9.0
  Best solution found = [ 0.0, 5.0]
  Projected gradient norm = 0.0
 
  Number of iterations = 2
- Number of function evaluations = 6
+ Number of function evaluations = 3
 
 ```
 
@@ -161,7 +162,7 @@ julia> function g!(g,x,a,b)
          g[2] = 2*(x[2]-b)
        end
 
-julia> grad!(g,x) = grad!(g,x,a,b) 
+julia> g!(g,x) = g!(g,x,a,b) 
 
 ```
 
@@ -188,7 +189,7 @@ julia> R = spgbox!(x -> f(x,a,b,c), (g,x) -> g!(g,x,a,b), x)
 ```
 where the first argument, `x -> f(x,a,b,c)` indicates that the objective
 function is an anonymous function that, given `x`, returns `f(x,a,b,c)`. The gradient
-is evaluated by an anonymous function that, given `(g,x)`, returns `grad!(g,x,a,b)`.  
+is evaluated by an anonymous function that, given `(g,x)`, returns `g!(g,x,a,b)`.  
 This syntax also preserves performance and does not require the parameters to be declared
 as constants. 
 
