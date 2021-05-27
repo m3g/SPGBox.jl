@@ -10,7 +10,7 @@
 #
 """
 ```
-spgbox!(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options..)`
+spgbox!(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options...)`
 ```
 
 ```
