@@ -52,7 +52,7 @@ using SPGBox
   @test R.x ≈ [0.,1.]
   
   x = [ 10. , 18. ]
-  R = spgbox!(f,g!,x,[-Inf,-2.],[+Inf,2])
+  R = spgbox!(f,g!,[-Inf,-2.],[+Inf,2],x)
   @test R.f ≈ 0.
   @test R.x ≈ [0.,1.]
   

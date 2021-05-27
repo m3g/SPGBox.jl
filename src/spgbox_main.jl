@@ -10,11 +10,11 @@
 #
 """
 ```
-spgbox!(f, g!, x::AbstractVector{Real}, lower::AbstractVector{Real}, upper::AbstractVector{Real}; options...)`
+spgbox!(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options..)`
 ```
 
 ```
-spgbox!(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options..)`
+spgbox!(f, g!, lower::AbstractVector{Real}, upper::AbstractVector{Real}, x::AbstractVector{Real}; options...)`
 ```
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found. 
@@ -73,9 +73,9 @@ julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 function spgbox!(
   f::Function,
   g!::Function,
-  x::AbstractVector{Float64},
-  lower::Union{Nothing,AbstractVector{Float64}} = nothing, 
-  upper::Union{Nothing,AbstractVector{Float64}} = nothing; 
+  lower::Union{Nothing,AbstractVector{Float64}}, 
+  upper::Union{Nothing,AbstractVector{Float64}}, 
+  x::AbstractVector{Float64};
   eps::Float64 = 1.e-5,
   nitmax::Int = 100,
   nfevalmax::Int = 1000,
@@ -209,7 +209,7 @@ function spgbox!(
         end
       end 
       if iprint > 2
-        println(" xn = ", xn[begin], xn[begin+1] )
+        println(" xn = ", xn[begin], " ... ", xn[end])
       end
       nfeval = nfeval + 1
       fn = f(xn)
