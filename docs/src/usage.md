@@ -6,7 +6,6 @@ A function must be defined receiving as argument the current point as a vector:
 
 ```julia-repl
 julia> f(x) = x[1]^2 + (x[2]-2)^2
-
 ```
 
 And the gradient must receive as arguments the vector of variables and a
@@ -17,21 +16,19 @@ julia> function g!(g,x)
          g[1] = 2*x[1]
          g[2] = 2*(x[2]-2)
        end
-
 ```
 By Julia convention, to indicate that the gradient function modifies the vector `g`, we add
 the `!` to its name, although this does not affect at all its behavior.
 
 ## Calling the solver, without bounds
 
-The solver `spgbox!`, which modifies the input value of `x`, has a
-minimal calling syntax of
+The solver function is `spgbox!`, which mutates the input value of `x` (with the best solution found in it at the output). Alternatively, use `spgbox` to call the solver without modifying the values of the input vector (although a copy of if this vector will be produced). 
 
+The solver calls have a minimal calling syntax of
 ```julia-repl
 julia> x = rand(2);
 
 julia> R = spgbox!(f,g!,x)
-
 ```
 
 The results will be returned to the data structure `R` of type
@@ -50,7 +47,6 @@ julia> R = spgbox!(f,g!,x)
 
  Number of iterations = 2
  Number of function evaluations = 3
-
 ```
 
 ## Calling the solver, with box bounds
@@ -76,7 +72,6 @@ julia> R = spgbox!(f,g!,x,lower=[-Inf,5])
 
  Number of iterations = 2
  Number of function evaluations = 3
-
 ```
 
 Upper bounds can be similarly set with `upper=[+Inf,-5]`, for example.
@@ -86,7 +81,6 @@ Note, the bounds can also be provided as non-keyword parameters, with:
 julia> lower = [-Inf,5]; upper = [+Inf, -2];
 
 julia> R = spgbox!(f,g!,x,lower,upper)
-
 ```
 
 ## Result data structure and possible outcomes
@@ -112,7 +106,6 @@ The data can be accessed as usual, using, for example:
 ```julia-repl
 julia> R.f
 12.0
-
 ```
 
 The data structure contains:
@@ -155,7 +148,6 @@ julia> f(x,a,b,c) = a*x[1]^2 + (x[2]-b)^2 + c
 julia> const a = 5. ; const b = 2. ; const c = 3. ;
 
 julia> f(x) = f(x,a,b,c) 
-
 ```
 To preserve performance it is fundamental to declare the parameters, in this
 case `a`, `b`, and `c`, as constants (using `const`), to guarantee their
@@ -171,7 +163,6 @@ julia> function g!(g,x,a,b)
        end
 
 julia> g!(g,x) = g!(g,x,a,b) 
-
 ```
 
 The function method which receives only the current point `x`, and the
@@ -184,7 +175,6 @@ An anonymous closure is a function with a special syntax of the form
 
 ```julia
 x -> f(x)
-
 ```
 which should be read as "given `x`, return `f(x)`". These anonymous functions can
 be provided directly as arguments to the solver, while providing an interface for 
@@ -193,7 +183,6 @@ above, one uses anonymous functions  directly as arguments in the solver call:
 
 ```julia-repl
 julia> R = spgbox!(x -> f(x,a,b,c), (g,x) -> g!(g,x,a,b), x)
-
 ```
 where the first argument, `x -> f(x,a,b,c)` indicates that the objective
 function is an anonymous function that, given `x`, returns `f(x,a,b,c)`. The gradient
@@ -239,5 +228,4 @@ julia> spgbox!(f, (g,x) -> ReverseDiff.gradient!(g,f,x), x, lower=[-Inf,2.])
 
  Number of iterations = 0
  Number of function evaluations = 1
-
 ```

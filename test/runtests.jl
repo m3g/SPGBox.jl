@@ -56,6 +56,19 @@ using SPGBox
   @test R.f ≈ 0.
   @test R.x ≈ [0.,1.]
   
+  # Test the mutating call  
+  x = [ 10. , 18. ]
+  R = spgbox(f,g!,[-Inf,-2.],[+Inf,2],x)
+  @test x == [ 10. , 18. ]
+  @test R.f ≈ 0.
+  @test R.x ≈ [0.,1.]
+  
+  x = [ 10. , 18. ]
+  R = spgbox(f,g!,x,lower=[-Inf,-2.],upper=[+Inf,2])
+  @test x == [ 10. , 18. ]
+  @test R.f ≈ 0.
+  @test R.x ≈ [0.,1.]
+  
 end
 
 

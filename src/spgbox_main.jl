@@ -17,7 +17,7 @@ spgbox!(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options...)`
 spgbox!(f, g!, lower::AbstractVector{Real}, upper::AbstractVector{Real}, x::AbstractVector{Real}; options...)`
 ```
 
-Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found. 
+Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found (see `spgbox` for a non-mutating alternative). 
 
 Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`, which can be provided as the fourth and fifth arguments or with keyword parameters.
 
@@ -255,3 +255,66 @@ function spgbox!(
 
 end
 
+"""
+
+```
+spgbox(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options...)`
+```
+
+```
+spgbox(f, g!, lower::AbstractVector{Real}, upper::AbstractVector{Real}, x::AbstractVector{Real}; options...)`
+```
+
+Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. This call *does not* mutate the `x` vector, instead it will create a (deep)copy of it (see `spgbox!` to the inplace alternative). 
+
+Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`, which can be provided as the fourth and fifth arguments or with keyword parameters.
+
+Returns a structure of type `SPGBoxResult`, containing the best solution found in `x` and the final objective function in `f`.
+
+
+"""
+function spgbox(
+  f::Function,
+  g!::Function,
+  lower::Union{Nothing,AbstractVector{Float64}}, 
+  upper::Union{Nothing,AbstractVector{Float64}}, 
+  x::AbstractVector{Float64};
+  eps::Float64 = 1.e-5,
+  nitmax::Int = 100,
+  nfevalmax::Int = 1000,
+  m::Int = 10,
+  vaux::VAux = VAux(length(x),m),
+  iprint::Int = 0,
+  project_x0::Bool = true
+) 
+  x0 = deepcopy(x)
+  return spgbox!(
+    f,g!,x0,lower=lower,upper=upper,
+    eps=eps, nitmax=nitmax, nfevalmax=nfevalmax, m=m, 
+    vaux=vaux, iprint=iprint, project_x0=project_x0
+  )
+end
+#
+# call with lower and upper as keyword parameters
+#
+function spgbox(
+  f::Function,
+  g!::Function,
+  x::AbstractVector{Float64};
+  lower::Union{Nothing,AbstractVector{Float64}} = nothing, 
+  upper::Union{Nothing,AbstractVector{Float64}} = nothing, 
+  eps::Float64 = 1.e-5,
+  nitmax::Int = 100,
+  nfevalmax::Int = 1000,
+  m::Int = 10,
+  vaux::VAux = VAux(length(x),m),
+  iprint::Int = 0,
+  project_x0::Bool = true
+)
+  x0 = deepcopy(x)
+  return spgbox!(
+    f,g!,x0,lower=lower,upper=upper,
+    eps=eps, nitmax=nitmax, nfevalmax=nfevalmax, m=m, 
+    vaux=vaux, iprint=iprint, project_x0=project_x0
+  )
+end

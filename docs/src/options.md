@@ -3,6 +3,10 @@
 Several keyword parameters can be used to adjust the convergence
 criteria and to deal with the memory management of the execution.  
 
+## Mutating or not mutating the initial point
+
+Two solver functions are available: `spgbox!` and `spgbox`. The only difference is that `spgbox!` operates inplace in the input vector, while `spgbox` creates a copy of it and leaves the input variable unchanged. To perform completely non-allocating executions, use `spgbox!` and [preallocate the auxiliary vectors](https://m3g.github.io/SPGBox.jl/stable/options/#Memory-preallocation).
+
 ## Convergence criteria
 
 Parameters exist to set the convergence threshold, maximum number of
