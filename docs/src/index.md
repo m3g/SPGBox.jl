@@ -58,6 +58,6 @@ julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 
 ```
 The `spgbox!` function mutates the content of the input `x` vector (and will not allocate anything if the auxiliary vectors are provide
-d as described [here](https://m3g.github.io/SPGBox.jl/stable/options/#Memory-preallocation) ). Use `spgbox`, to internaly copy the `x` 
+d as described [here](https://m3g.github.io/SPGBox.jl/stable/options/#Memory-preallocation)). Use `spgbox`, to internaly copy the `x` 
 array and not mutate it.  
 
