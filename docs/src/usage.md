@@ -51,7 +51,7 @@ julia> R = spgbox!(f,g!,x)
 
 ## Calling the solver, with box bounds
 
-Box bounds can be provided by the optional keywords `l` and `u` for
+Box bounds can be provided by the optional keywords `lower` and `upper` for
 lower and upper bounds, respectively. These are vectors that will
 delimit the bounds for each variable. For example, assuming the same
 function and gradient functions defined in the example above, a lower
