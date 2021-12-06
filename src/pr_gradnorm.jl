@@ -6,11 +6,11 @@
 # be of type Nothing if those bounds are not defined
 #
 function pr_gradnorm(g,x,lower,upper)
-  if lower == nothing && upper == nothing 
+  if isnothing(lower) && isnothing(upper)
     return pr_gradnorm_no_bounds(g)
-  elseif lower == nothing 
+  elseif isnothing(lower)
     pr_gradnorm_upper(g,x,upper)
-  elseif upper == nothing 
+  elseif isnothing(upper)
     return pr_gradnorm_lower(g,x,lower)
   else
     return pr_gradnorm_both_bounds(g,x,lower,upper)

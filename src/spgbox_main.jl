@@ -122,7 +122,7 @@ function spgbox!(
   @assert length(fprev) == m "Auxiliar vector `fprev` must be of length `m`"
 
   # Check if bounds are defined, project or not the initial point on them
-  if lower != nothing
+  if !isnothing(lower)
     @assert length(lower) == n "Lower bound vector `lower` must be of the same length than x, got: $(length(lower))"
     if project_x0
       @. x = max(x,lower)
@@ -134,7 +134,7 @@ function spgbox!(
       end
     end
   end
-  if upper != nothing
+  if !isnothing(upper)
     @assert length(upper) == n "Upper bound vector `upper` must be of the same length than `x`, got: $(length(upper))"
     if project_x0
       @. x = min(x,upper)
@@ -201,10 +201,10 @@ function spgbox!(
     while( fn > fref )
       for i in eachindex(x)
         xn[i] = x[i] - t*g[i]
-        if upper != nothing
+        if !isnothing(upper)
           xn[i] = min(xn[i],upper[i])
         end
-        if lower != nothing
+        if !isnothing(lower)
           xn[i] = max(xn[i],lower[i])
         end
       end 
