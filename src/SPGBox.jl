@@ -7,4 +7,3 @@ include("./spgbox_main.jl")
 export spgbox!, spgbox
 
 end
-
