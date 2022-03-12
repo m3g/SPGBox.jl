@@ -229,7 +229,7 @@ function spgbox!(
       num = num + (xn[i]-x[i])^2
       den = den + (xn[i]-x[i])*(gn[i]-g[i])
     end
-    if den <= 0.
+    if den <= zero(T)
       tspg = T(100)
     else
       tspg =  min(T(1.e3),num/den)
