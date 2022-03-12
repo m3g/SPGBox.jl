@@ -73,17 +73,17 @@ julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 function spgbox!(
   f::Function,
   g!::Function,
-  lower::Union{Nothing,AbstractVector{<:Real}}, 
-  upper::Union{Nothing,AbstractVector{<:Real}}, 
-  x::AbstractVector{<:Real};
-  eps = 1.e-5,
+  lower::Union{Nothing,AbstractVector{T}}, 
+  upper::Union{Nothing,AbstractVector{T}}, 
+  x::AbstractVector{T};
+  eps = 1.e-5*oneunit(T),
   nitmax::Int = 100,
   nfevalmax::Int = 1000,
   m::Int = 10,
-  vaux::VAux = VAux(eltype(x),length(x),m),
+  vaux::VAux = VAux(T,typeof(f(x)),length(x),m),
   iprint::Int = 0,
   project_x0::Bool = true
-) 
+) where T 
   return spgbox!(
     f,g!,x,lower=lower,upper=upper,
     eps=eps, nitmax=nitmax, nfevalmax=nfevalmax, m=m, 
@@ -96,21 +96,18 @@ end
 function spgbox!(
   f::Function,
   g!::Function,
-  x::AbstractVector{<:Real};
-  lower::Union{Nothing,AbstractVector{<:Real}} = nothing, 
-  upper::Union{Nothing,AbstractVector{<:Real}} = nothing, 
-  eps = 1.e-5,
+  x::AbstractVector{T};
+  lower::Union{Nothing,AbstractVector{T}} = nothing, 
+  upper::Union{Nothing,AbstractVector{T}} = nothing, 
+  eps = 1.e-5*oneunit(T),
   nitmax::Int = 100,
   nfevalmax::Int = 1000,
   m::Int = 10,
-  vaux::VAux = VAux(eltype(x),length(x),m),
+  vaux::VAux = VAux(T,typeof(f(x)),length(x),m),
   iprint::Int = 0,
   project_x0::Bool = true
-)
-  #variable type
-  T = eltype(x) 
+) where T
 
-  eps = T(eps)
   # Number of variables
   n = length(x)
 
@@ -200,7 +197,7 @@ function spgbox!(
       println(" t = ", t)
     end
 
-    fn = +Inf
+    fn = typemax(eltype(fprev))
     while( fn > fref )
       for i in eachindex(x)
         xn[i] = x[i] - t*g[i]
@@ -233,13 +230,13 @@ function spgbox!(
     num = zero(T)
     den = zero(T)
     for i in eachindex(x)
-      num = num + (xn[i]-x[i])^2
-      den = den + (xn[i]-x[i])*(gn[i]-g[i])
+      num = num + (xn[i]-x[i])^2 / oneunit(T)
+      den = den + (xn[i]-x[i])*(gn[i]-g[i]) / oneunit(T)
     end
     if den <= zero(T)
       tspg = T(100)
     else
-      tspg =  min(T(1.e3),num/den)
+      tspg =  min(1000*one(T),one(T)*num/den)
     end
     fcurrent = fn
     for i in eachindex(x)
@@ -280,17 +277,17 @@ Returns a structure of type `SPGBoxResult`, containing the best solution found i
 function spgbox(
   f::Function,
   g!::Function,
-  lower::Union{Nothing,AbstractVector{<:Real}}, 
-  upper::Union{Nothing,AbstractVector{<:Real}}, 
-  x::AbstractVector{<:Real};
-  eps = 1.e-5,
+  lower::Union{Nothing,AbstractVector{T}}, 
+  upper::Union{Nothing,AbstractVector{T}}, 
+  x::AbstractVector{T};
+  eps = 1.e-5*oneunit(T),
   nitmax::Int = 100,
   nfevalmax::Int = 1000,
   m::Int = 10,
-  vaux::VAux = VAux(eltype(x),length(x),m),
+  vaux::VAux = VAux(T,typeof(f(x)),length(x),m),
   iprint::Int = 0,
   project_x0::Bool = true
-) 
+) where T
   x0 = deepcopy(x)
   return spgbox!(
     f,g!,x0,lower=lower,upper=upper,
@@ -304,17 +301,17 @@ end
 function spgbox(
   f::Function,
   g!::Function,
-  x::AbstractVector{<:Real};
-  lower::Union{Nothing,AbstractVector{<:Real}} = nothing, 
-  upper::Union{Nothing,AbstractVector{<:Real}} = nothing, 
-  eps = 1.e-5,
+  x::AbstractVector{T};
+  lower::Union{Nothing,AbstractVector{T}} = nothing, 
+  upper::Union{Nothing,AbstractVector{T}} = nothing, 
+  eps = 1.e-5*oneunit(T),
   nitmax::Int = 100,
   nfevalmax::Int = 1000,
   m::Int = 10,
-  vaux::VAux = VAux(eltype(x),length(x),m),
+  vaux::VAux = VAux(T,typeof(f(x)),length(x),m),
   iprint::Int = 0,
   project_x0::Bool = true
-)
+) where T
   x0 = deepcopy(x)
   return spgbox!(
     f,g!,x0,lower=lower,upper=upper,

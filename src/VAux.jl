@@ -1,17 +1,13 @@
 #
 # Structure to store auxiliary arrays
 #
-struct VAux{T}
+struct VAux{T,F}
   g :: Vector{T}
   xn :: Vector{T}
   gn :: Vector{T}
-  fprev :: Vector{T}
+  fprev :: Vector{F}
 end
-VAux(n,m) = VAux(Float64,n,m)
-
-VAux(::Type{T},n,m) where T = VAux( zeros(T,n), #BigFloat needs to be allocated first
-                                    zeros(T,n),
-                                    zeros(T,n),
-                                    zeros(T,m))
-# The default value for m
-VAux(n) = VAux(n,10)
+VAux(::Type{T},::Type{F},n,m) where {T,F} = VAux{T,F}(zeros(T,n),zeros(T,n),zeros(T,n),zeros(F,m))
+VAux(n,m) = VAux(Float64,Float64,n,m)
+VAux(::Type{T},::Type{F},n) where {T,F} = VAux(T,F,n,10)
+VAux(n) = VAux(Float64,Float64,n)
