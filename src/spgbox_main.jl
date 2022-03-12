@@ -80,7 +80,7 @@ function spgbox!(
   nitmax::Int = 100,
   nfevalmax::Int = 1000,
   m::Int = 10,
-  vaux::VAux = VAux(length(x),m),
+  vaux::VAux = VAux(eltype(x),length(x),m),
   iprint::Int = 0,
   project_x0::Bool = true
 ) 
@@ -205,6 +205,7 @@ function spgbox!(
       xn .= x .- t .* g
       !isnothing(upper) && (xn .= min.(xn,upper))
       !isnothing(lower) && (xn .= max.(xn,lower))
+      
       if iprint > 2
         println(" xn = ", xn[begin], " ... ", xn[end])
       end

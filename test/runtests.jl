@@ -3,11 +3,11 @@ using SPGBox
 
 @testset "simple polynomial" begin
 
-  f(x) = x[1]^2 + (x[2]-1.)^2
+  f(x) = x[1]^2 + (x[2]-1)^2
   
   function g!(g,x) 
     g[1] = 2*x[1]
-    g[2] = 2*(x[2]-1.)
+    g[2] = 2*(x[2]-1)
   end
   
   x = [ 10. , 18. ]
@@ -69,6 +69,19 @@ using SPGBox
   @test R.f ≈ 0.
   @test R.x ≈ [0.,1.]
   
+  #BigFloat support
+  x = BigFloat[ 10. , 18. ]
+  R = spgbox!(f,g!,x)
+  @test R.f ≈ 0.
+  @test R.x ≈ [0.,1.]
+  @test eltype(R.f) == eltype(R.x) == BigFloat
+
+    #Float32 support
+    x = Float32[ 10. , 18. ]
+    R = spgbox!(f,g!,x)
+    @test R.f ≈ 0.
+    @test R.x ≈ [0.,1.]
+    @test eltype(R.f) == eltype(R.x) == Float32
 end
 
 
