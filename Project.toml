@@ -4,14 +4,14 @@ authors = ["Leandro Martinez <leandro@iqm.unicamp.br>"]
 version = "0.3.3-DEV"
 
 [deps]
-Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 julia = "1"
+Unitful = "1"
 
 [targets]
-test = ["Unitful"]
+test = ["Test", "Unitful"]
