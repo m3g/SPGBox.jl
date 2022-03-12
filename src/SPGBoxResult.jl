@@ -19,10 +19,10 @@ optimization method.
          2. Maximum number of function evaluations achieved.
 
 """ 
-struct SPGBoxResult
-  x::Vector{Float64}
-  f::Float64
-  gnorm::Float64
+struct SPGBoxResult{T,X}
+  x::X
+  f::T
+  gnorm::T
   nit::Int64
   nfeval::Int64
   ierr::Int64 
