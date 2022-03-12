@@ -202,9 +202,15 @@ function spgbox!(
 
     fn = +Inf
     while( fn > fref )
-      xn .= x .- t .* g
-      !isnothing(upper) && (xn .= min.(xn,upper))
-      !isnothing(lower) && (xn .= max.(xn,lower))
+      for i in eachindex(x)
+        xn[i] = x[i] - t*g[i]
+        if !isnothing(upper)
+          xn[i] = min(xn[i],upper[i])
+        end
+        if !isnothing(lower)
+          xn[i] = max(xn[i],lower[i])
+        end
+      end
       
       if iprint > 2
         println(" xn = ", xn[begin], " ... ", xn[end])
