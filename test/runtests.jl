@@ -2,7 +2,7 @@ using Test
 using SPGBox
 using Unitful
 
-@testset "simple polynomial" begin
+@testset "simple quadratic" begin
 
     f(x) = x[1]^2 + (x[2] - 1)^2
 
@@ -94,5 +94,18 @@ using Unitful
     R = spgbox!(f_units, g_units!, x)
     @test R.f ≈ 0.0u"nm^2"
     @test R.x ≈ [0.0, 1.0]u"nm"
+    x = [10.0, 18.0]u"nm"
+    R = spgbox!(f_units, g_units!, x, lower = [-Inf, 2.0]u"nm")
+    @test R.f ≈ 1.0u"nm^2"
+    @test R.x ≈ [0.0, 2.0]u"nm"
+    R = spgbox!(f_units, g_units!, x, lower = [-Inf, 2.0]u"nm")
+    @test R.f ≈ 1.0u"nm^2"
+    @test R.x ≈ [0.0, 2.0]u"nm"
+    R = spgbox!(f_units, g_units!, x, upper = [-5.0, +Inf]u"nm")
+    @test R.f ≈ 25.0u"nm^2"
+    @test R.x ≈ [-5.0, 1.0]u"nm"
+    R = spgbox!(f_units, g_units!, x, lower = [-Inf, 2.0]u"nm", upper = [-5.0, +Inf]u"nm")
+    @test R.f ≈ 26.0u"nm^2"
+    @test R.x ≈ [-5.0, 2.0]u"nm"
 
 end
