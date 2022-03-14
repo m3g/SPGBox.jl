@@ -16,7 +16,7 @@ The complete documentation can be found at: https://m3g.github.io/SPGBox.jl
 
 ## How to install
 
-```julia-repl
+```julia
 julia> using Pkg
 
 julia> Pkg.add("SPGBox")
@@ -24,7 +24,7 @@ julia> Pkg.add("SPGBox")
 
 or, more concisely,
 
-```julia-repl
+```julia
 julia> ] add SPGBox
 ```
 
