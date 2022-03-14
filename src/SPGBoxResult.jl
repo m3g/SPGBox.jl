@@ -37,7 +37,7 @@ function Base.show(io::IO, R::SPGBoxResult)
     R.ierr == 2 && println(" Maximum number of function evaluations (nfevalmax) reached.")
     println("")
     println(" Final objective function value = ", R.f)
-    print(" Best solution found = [ ")
+    print(" Sample of best point = $(typeof(R.x))[ ")
     for i = 1:min(length(R.x) - 1, 3)
         print("$(R.x[i]), ")
     end

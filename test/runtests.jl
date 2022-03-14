@@ -84,6 +84,12 @@ using Unitful
     @test R.x ≈ [0.0, 1.0]
     @test eltype(R.f) == eltype(R.x) == Float32
 
+    # Matrix input support
+    x = [ 10.0 18.0 ]
+    R = spgbox!(f, g!, x)
+    @test R.f ≈ 0.0
+    @test R.x ≈ [0.0 1.0]
+
     # Unitful support
     f_units(x) = x[1]^2 + (x[2] - oneunit(eltype(x)))^2
     function g_units!(g, x)

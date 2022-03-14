@@ -28,7 +28,7 @@ The available keywords are:
 |:-------------:|:-------------:|:-------------:|:--------------:|
 | `nitmax`      | `Integer` | Maximum number of iterations allowed. | `100` |
 | `nfevalmax`   | `Integer` | Maximum number of function evaluations allowed. | `1000` |
-| `eps`         | `Real` | Convergence criteria for the projected gradient norm. | `1e-5` |
+| `eps`         | `eltype(x)` | Convergence criteria for the projected gradient norm. | `1e-5` |
 | `m`           | `Integer` | Number of non-monotone search steps.  | `10` |
 
 ## Memory preallocation
