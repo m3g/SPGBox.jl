@@ -85,7 +85,7 @@ Without preallocating the auxiliary arrays:
 julia> using BenchmarkTools
 
 julia> @btime spgbox!($f,$g!,$x)
-  6.639 ms (10 allocations: 22.89 MiB)
+  8.705 ms (16 allocations: 45.78 MiB)
 
 ```
 
@@ -99,7 +99,7 @@ And these arrays will be passed as arguments to the `spgbox!` function:
 
 ```julia-repl
 julia> @btime spgbox!($f,$g!,$x,vaux=$auxvecs)
-  6.429 ms (0 allocations: 0 bytes)
+  3.414 ms (0 allocations: 0 bytes)
 
 ```
 
