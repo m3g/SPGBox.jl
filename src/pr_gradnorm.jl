@@ -33,10 +33,4 @@ function pr_gradnorm(g, x, lower::Nothing, upper)
     return gnorm
 end
 # No bounds
-function pr_gradnorm(g, x, lower::Nothing, upper::Nothing)
-    gnorm = zero(eltype(g))
-    for i in eachindex(g)
-        gnorm = max(gnorm, abs(g[i]))
-    end
-    return gnorm
-end
+pr_gradnorm(g, x, lower::Nothing, upper::Nothing) = maximum(abs, g)
