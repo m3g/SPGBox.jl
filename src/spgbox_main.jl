@@ -5,8 +5,8 @@
 # ERNESTO G. BIRGIN, JOSÉ MARIO MARTÍNEZ, AND MARCOS RAYDAN
 # SIAM J. O. PTIM. Vol. 10, No. 4, pp. 1196-1211
 #
-# Originally implemented by J. M. Martínez (IMECC - UNICAMP)
-# Translated to Julia by L. Martínez (IQ-UNICAMP)
+# Implemented by J. M. Martínez (IMECC - UNICAMP)
+# Iinitally translated and adapted to Julia by L. Martínez (IQ-UNICAMP)
 #
 """
 ```
