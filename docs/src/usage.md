@@ -136,6 +136,52 @@ If the function requires additional parameters, two strategies are
 possible while preserving performance: 1) Declare the parameters as constants
 and define an extra method, or 2) Pass the function as an anonymous closure. 
 
+## Input data types
+
+The implementation of `SPGBox` is generic for input types of any abstract matrix or vector. 
+Propagation of units, or numbers with arbitrary precision is supported. As minimal example illustrating 
+these features, let us minimize a function where the input variables are given as a matrix of `BigFloat`s,
+with units:
+
+```julia-repl
+julia> function f(x)
+           f = zero(typeof(x[begin]^2))
+           for i in eachindex(x)
+               f += (x[i] - i*oneunit(eltype(x)))^2
+           end
+           return f
+       end
+f (generic function with 1 method)
+
+julia> function g!(g,x)
+           g .= zero(eltype(x))
+           for i in eachindex(x)
+               g[i] = 2*(x[i] - i*oneunit(eltype(x)))
+           end
+           return g
+       end
+g! (generic function with 1 method)
+
+julia> x = rand(BigFloat,2,2)u"nm"
+2×2 Matrix{Quantity{BigFloat, 𝐋, Unitful.FreeUnits{(nm,), 𝐋, nothing}}}:
+ 0.128083 nm  0.817173 nm
+ 0.139545 nm  0.391047 nm
+
+julia> spgbox(f,g!,x)
+
+ SPGBOX RESULT: 
+
+ Convergence achieved. 
+
+ Final objective function value = 0.0 nm^2
+ Sample of best point = Matrix{Quantity{BigFloat, 𝐋, Unitful.FreeUnits{(nm,), 𝐋, nothing}}}[ 1.0 nm, 2.0 nm, 3.0 nm, 4.0 nm]
+ Projected gradient norm = 0.0 nm
+
+ Number of iterations = 2
+ Number of function evaluations = 3
+
+```
+
 ### Constant parameters and new function and gradient methods 
 
 The solver requires a function with a single argument, `x`, and a gradient
