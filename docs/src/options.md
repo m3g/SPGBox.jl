@@ -53,6 +53,8 @@ julia> auxvecs = SPGBox.VAux(x,f(x))
 julia> R = spgbox!(f,g!,x,vaux=auxvecs)
 
 ```
+That is, the `SPGBox.Vaux` constructor receives an example of `x` and an example of the output of `f(x)`
+and with that constructs the structure of auxiliary arrays. 
 
 For example, let us minimize the sum of squares of one million variables:
 
