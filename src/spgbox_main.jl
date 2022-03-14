@@ -10,11 +10,11 @@
 #
 """
 ```
-spgbox!(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options...)`
+spgbox!(f, g!, x::AbstractVector; lower=..., upper=..., options...)`
 ```
 
 ```
-spgbox!(f, g!, lower::AbstractVector{Real}, upper::AbstractVector{Real}, x::AbstractVector{Real}; options...)`
+spgbox!(f, g!, lower::AbstractVector, upper::AbstractVector, x::AbstractVector; options...)`
 ```
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found (see `spgbox` for a non-mutating alternative). 
@@ -70,38 +70,6 @@ julia> spgbox!(f,g!,x,lower=[2.,-Inf])
  Number of function evaluations = 3
 ```
 """
-function spgbox!(
-    f::Function,
-    g!::Function,
-    lower::Union{Nothing,AbstractVector{T}},
-    upper::Union{Nothing,AbstractVector{T}},
-    x::AbstractVector{T};
-    eps = 1.e-5 * oneunit(T),
-    nitmax::Int = 100,
-    nfevalmax::Int = 1000,
-    m::Int = 10,
-    vaux::VAux = VAux(T, typeof(f(x)), length(x), m),
-    iprint::Int = 0,
-    project_x0::Bool = true,
-) where {T}
-    return spgbox!(
-        f,
-        g!,
-        x,
-        lower = lower,
-        upper = upper,
-        eps = eps,
-        nitmax = nitmax,
-        nfevalmax = nfevalmax,
-        m = m,
-        vaux = vaux,
-        iprint = iprint,
-        project_x0 = project_x0,
-    )
-end
-#
-# call with lower and upper as keyword parameters
-#
 function spgbox!(
     f::Function,
     g!::Function,
@@ -268,15 +236,19 @@ function spgbox!(
     return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, ierr)
 
 end
+#
+# Call with lower and upper as positional arguments
+#
+spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, lower=lower, upper=upper, kargs...)
 
 """
 
 ```
-spgbox(f, g!, x::AbstractVector{Real}; lower=..., upper=..., options...)`
+spgbox(f, g!, x::AbstractVector; lower=..., upper=..., options...)`
 ```
 
 ```
-spgbox(f, g!, lower::AbstractVector{Real}, upper::AbstractVector{Real}, x::AbstractVector{Real}; options...)`
+spgbox(f, g!, lower::AbstractVector, upper::AbstractVector, x::AbstractVector; options...)`
 ```
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. This call *does not* mutate the `x` vector, instead it will create a (deep)copy of it (see `spgbox!` to the inplace alternative). 
@@ -287,66 +259,14 @@ Returns a structure of type `SPGBoxResult`, containing the best solution found i
 
 
 """
-function spgbox(
-    f::Function,
-    g!::Function,
-    lower::Union{Nothing,AbstractVector{T}},
-    upper::Union{Nothing,AbstractVector{T}},
-    x::AbstractVector{T};
-    eps = 1.e-5 * oneunit(T),
-    nitmax::Int = 100,
-    nfevalmax::Int = 1000,
-    m::Int = 10,
-    vaux::VAux = VAux(T, typeof(f(x)), length(x), m),
-    iprint::Int = 0,
-    project_x0::Bool = true,
-) where {T}
+function spgbox(f::F, g!::G, x; kargs...) where {F,G}
     x0 = deepcopy(x)
-    return spgbox!(
-        f,
-        g!,
-        x0,
-        lower = lower,
-        upper = upper,
-        eps = eps,
-        nitmax = nitmax,
-        nfevalmax = nfevalmax,
-        m = m,
-        vaux = vaux,
-        iprint = iprint,
-        project_x0 = project_x0,
-    )
+    return spgbox!(f, g!, x0; kargs...)
 end
 #
-# call with lower and upper as keyword parameters
+# call with lower and upper as positional arguments
 #
-function spgbox(
-    f::Function,
-    g!::Function,
-    x::AbstractVector{T};
-    lower::Union{Nothing,AbstractVector{T}} = nothing,
-    upper::Union{Nothing,AbstractVector{T}} = nothing,
-    eps = 1.e-5 * oneunit(T),
-    nitmax::Int = 100,
-    nfevalmax::Int = 1000,
-    m::Int = 10,
-    vaux::VAux = VAux(T, typeof(f(x)), length(x), m),
-    iprint::Int = 0,
-    project_x0::Bool = true,
-) where {T}
+function spgbox(f::F, g!::G, lower, upper, x; kargs...) where {F,G}
     x0 = deepcopy(x)
-    return spgbox!(
-        f,
-        g!,
-        x0,
-        lower = lower,
-        upper = upper,
-        eps = eps,
-        nitmax = nitmax,
-        nfevalmax = nfevalmax,
-        m = m,
-        vaux = vaux,
-        iprint = iprint,
-        project_x0 = project_x0,
-    )
+    return spgbox!(f, g!, lower, upper, x0; kargs...)
 end
