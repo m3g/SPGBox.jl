@@ -10,11 +10,11 @@
 #
 """
 ```
-spgbox!(f, g!, x::AbstractVector; lower=..., upper=..., options...)`
+spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
 ```
 
 ```
-spgbox!(f, g!, lower::AbstractVector, upper::AbstractVector, x::AbstractVector; options...)`
+spgbox!(f, g!, lower::AbstractVeOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
 ```
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found (see `spgbox` for a non-mutating alternative). 
@@ -73,9 +73,9 @@ julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 function spgbox!(
     f::Function,
     g!::Function,
-    x::AbstractVector{T};
-    lower::Union{Nothing,AbstractVector{T}} = nothing,
-    upper::Union{Nothing,AbstractVector{T}} = nothing,
+    x::AbstractVecOrMat{T};
+    lower::Union{Nothing,AbstractVecOrMat{T}} = nothing,
+    upper::Union{Nothing,AbstractVecOrMat{T}} = nothing,
     eps = 1.e-5 * oneunit(T),
     nitmax::Int = 100,
     nfevalmax::Int = 1000,
@@ -244,11 +244,11 @@ spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, 
 """
 
 ```
-spgbox(f, g!, x::AbstractVector; lower=..., upper=..., options...)`
+spgbox(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
 ```
 
 ```
-spgbox(f, g!, lower::AbstractVector, upper::AbstractVector, x::AbstractVector; options...)`
+spgbox(f, g!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
 ```
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. This call *does not* mutate the `x` vector, instead it will create a (deep)copy of it (see `spgbox!` to the inplace alternative). 
