@@ -12,8 +12,7 @@ projected gradient methods on convex sets", SIAM Journal on Optimization
 
 ## Documentation
 
-The complete documentation can be found at: 
-https://m3g.github.io/SPGBox.jl/stable/
+The complete documentation can be found at: https://m3g.github.io/SPGBox.jl
 
 ## How to install
 
@@ -34,7 +33,7 @@ julia> ] add SPGBox
 Define the function to compute the objective function and the gradient,
 for example with:
 
-```julia-repl
+```julia
 julia> f(x) = x[1]^2 + x[2]^2
 
 julia> function g!(x,g)
@@ -46,7 +45,7 @@ julia> function g!(x,g)
 And the objective function can be minimized with optional box bounds.
 Here, with a lower bound of `2` for the first variable:
 
-```julia-repl
+```julia
 julia> x = 2 .+ rand(2)
 
 julia> spgbox!(f,g!,x,lower=[2.,-Inf])
