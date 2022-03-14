@@ -80,7 +80,7 @@ function spgbox!(
     nitmax::Int = 100,
     nfevalmax::Int = 1000,
     m::Int = 10,
-    vaux::VAux = VAux(T, typeof(f(x)), length(x), m),
+    vaux::VAux = VAux(x, f(x), m=m),
     iprint::Int = 0,
     project_x0::Bool = true,
 ) where {T}

@@ -42,12 +42,13 @@ the number of non-monotone steps allowed, `fprev`, of dimension, `m`
 These vectors are allocated in the `SPGBox.VAux` data structure. For
 preallocating the auxiliary vectors, initialize this data structure
 before calling `spgbox!` and pass the data structure using the
-`vaux` argument. In brief, do, for 1 million variables:
+`vaux` argument. In brief, given that the vector of variables is `x`, 
+and the function is `f(x)`, do:
 
 ```julia-repl
-julia> n = 1_000_000
+julia> x = rand(1_000_000);
 
-julia> auxvecs = SPGBox.VAux(n)
+julia> auxvecs = SPGBox.VAux(x,f(x))
 
 julia> R = spgbox!(f,g!,x,vaux=auxvecs)
 
@@ -91,7 +92,7 @@ julia> @btime spgbox!($f,$g!,$x)
 Now we will preallocate all auxiliary arrays. 
 
 ```julia-repl
-julia> auxvecs = SPGBox.VAux(n);
+julia> auxvecs = SPGBox.VAux(x,f(x));
 
 ```
 And these arrays will be passed as arguments to the `spgbox!` function:
@@ -118,7 +119,7 @@ user and preallocation will be done, the new `m` value must be provided
 to `SPGBox.VAux`, with:
 
 ```julia-repl
-julia> auxvecs = SPGBox.VAux(n,m)
+julia> auxvecs = SPGBox.VAux(x,f(x),m=5)
 
 ```
 
