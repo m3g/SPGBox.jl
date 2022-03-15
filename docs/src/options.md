@@ -60,18 +60,18 @@ For example, let us minimize the sum of squares of one million variables:
 
 ```julia-repl
 julia> function f(x)
-         f = 0.
-         for i in eachindex(x)
-           f += x[i]^2
-         end
-         f
+           f = zero(eltype(x))
+           for i in eachindex(x)
+               f += x[i]^2
+           end
+           f
        end
 f (generic function with 1 methods)
 
 julia> function g!(g,x)
-         for i in eachindex(x)
-           g[i] = 2*x[i]
-         end
+           for i in eachindex(x)
+               g[i] = 2*x[i]
+           end
        end
 g! (generic function with 1 methods)
 
