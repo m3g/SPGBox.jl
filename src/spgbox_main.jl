@@ -28,8 +28,8 @@ Returns a structure of type `SPGBoxResult`, containing the best solution found i
 julia> f(x) = x[1]^2 + x[2]^2
 
 julia> function g!(g,x)
-         g[1] = 2*x[1]
-         g[2] = 2*x[2]
+           g[1] = 2*x[1]
+           g[2] = 2*x[2]
        end
 ```
 ## Without bounds
@@ -39,16 +39,17 @@ julia> x = rand(2)
 
 julia> spgbox!(f,g!,x)
 
- SPGBOX RESULT: 
+SPGBOX RESULT: 
 
- Convergence achieved. 
+Convergence achieved. 
 
- Final objective function value = 0.0
- Best solution found = [ 0.0, 0.0]
- Projected gradient norm = 0.0
+Final objective function value = 0.0
+Sample of best point = Vector{Float64}[ 0.0, 0.0]
+Projected gradient norm = 0.0
 
- Number of iterations = 2
- Number of function evaluations = 3
+Number of iterations = 3
+Number of function evaluations = 3
+
 ```
 
 ## With bounds
@@ -58,16 +59,17 @@ julia> x = 2 .+ rand(2)
 
 julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 
- SPGBOX RESULT:
+SPGBOX RESULT: 
 
- Convergence achieved.
+Convergence achieved. 
 
- Final objective function value = 4.0
- Best solution found = [ 2.0, 0.0]
- Projected gradient norm = 0.0
+Final objective function value = 4.0
+Sample of best point = Vector{Float64}[ 2.0, 0.0]
+Projected gradient norm = 0.0
 
- Number of iterations = 2
- Number of function evaluations = 3
+Number of iterations = 3
+Number of function evaluations = 3
+
 ```
 """
 function spgbox!(
@@ -140,7 +142,7 @@ function spgbox!(
     end
 
     # Iteration counter
-    nit = 0
+    nit = 1
     while nit < nitmax
 
         if iprint > 0
