@@ -50,16 +50,16 @@ julia> x = 2 .+ rand(2)
 
 julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 
- SPGBOX RESULT:
+ SPGBOX RESULT: 
 
- Convergence achieved.
+ Maximum number of iterations (nitmax) reached.
 
  Final objective function value = 4.0
- Best solution found = [ 2.0, 0.0]
- Projected gradient norm = 0.0
+ Sample of best point = Vector{Float64}[ 7.0e-323, 1.389570854585824e-309]
+ Projected gradient norm = 2.0
 
- Number of iterations = 2
- Number of function evaluations = 3
+ Number of iterations = 100
+ Number of function evaluations = 100
 
 ```
 
