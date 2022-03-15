@@ -37,8 +37,8 @@ for example with:
 julia> f(x) = x[1]^2 + x[2]^2
 
 julia> function g!(x,g)
-         g[1] = 2*x[1]
-         g[2] = 2*x[2]
+           g[1] = 2*x[1]
+           g[2] = 2*x[2]
        end
 ```
 
