@@ -80,9 +80,7 @@ Upper bounds can be similarly set with `upper=[+Inf,-5]`, for example.
 
 Note, the bounds can also be provided as non-keyword parameters, with:
 ```
-julia> lower = [-Inf,5]; upper = [-2,+Inf];
-
-julia> R = spgbox!(f,g!,x,lower=lower,upper=upper)
+julia> R = spgbox!(f,g!,x,lower=[-Inf,5],upper=[-2,+Inf])
 ```
 
 ## Result data structure and possible outcomes
