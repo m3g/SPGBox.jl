@@ -36,7 +36,7 @@ for example with:
 ```julia
 julia> f(x) = x[1]^2 + x[2]^2
 
-julia> function g!(x,g)
+julia> function g!(g,x)
            g[1] = 2*x[1]
            g[2] = 2*x[2]
        end
@@ -52,14 +52,14 @@ julia> spgbox!(f,g!,x,lower=[2.,-Inf])
 
  SPGBOX RESULT: 
 
- Maximum number of iterations (nitmax) reached.
+ Convergence achieved. 
 
  Final objective function value = 4.0
- Sample of best point = Vector{Float64}[ 7.0e-323, 1.389570854585824e-309]
- Projected gradient norm = 2.0
+ Sample of best point = Vector{Float64}[ 2.0, 0.0]
+ Projected gradient norm = 0.0
 
- Number of iterations = 100
- Number of function evaluations = 100
+ Number of iterations = 3
+ Number of function evaluations = 3
 
 ```
 
