@@ -8,14 +8,12 @@ struct VAux{T,F}
     fprev::Vector{F}
 end
 function VAux(x,fx;m=10)
+    g = similar(x)
+    xn = similar(x)
+    gn = similar(x)
     fprev = typeof(fx)[]
     for i in 1:m
         push!(fprev,zero(fx))
     end
-    return VAux{typeof(x),typeof(fx)}(
-        zero(similar(x)),
-        zero(similar(x)),
-        zero(similar(x)),
-        fprev
-    )
+    return VAux{typeof(g),typeof(fx)}(g, xn, gn, fprev)
 end
