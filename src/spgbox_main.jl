@@ -150,7 +150,7 @@ function spgbox!(
             println(" Objective function value = ", fcurrent)
         end
 
-        # Compute gradient norm
+        # Compute projected gradient norm
         gnorm = pr_gradnorm(g, x, lower, upper)
 
         if iprint > 0
