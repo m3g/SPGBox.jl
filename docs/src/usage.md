@@ -13,8 +13,8 @@ vector which will be modified to contain the gradient at the current point:
 
 ```julia-repl
 julia> function g!(g,x)
-         g[1] = 2*x[1]
-         g[2] = 2*(x[2]-2)
+           g[1] = 2*x[1]
+           g[2] = 2*(x[2]-2)
        end
 ```
 By Julia convention, to indicate that the gradient function modifies the vector `g`, we add
@@ -28,14 +28,14 @@ The solver calls have a minimal calling syntax of
 ```julia-repl
 julia> x = rand(2);
 
-julia> R = spgbox!(f,g!,x)
+julia> R = spgbox(f,g!,x)
 ```
 
 The results will be returned to the data structure `R` of type
 `SPGBoxResult`, and will be output as: 
 
 ```julia-repl
-julia> R = spgbox!(f,g!,x)
+julia> R = spgbox(f,g!,x)
 
  SPGBOX RESULT: 
 
@@ -61,27 +61,28 @@ bound will be set for the second variable:
 ```julia-repl
 julia> x = rand(2);
 
-julia> R = spgbox!(f,g!,x,lower=[-Inf,5])
+julia> R = spgbox(f,g!,x,lower=[-Inf,5])
 
  SPGBOX RESULT: 
 
  Convergence achieved. 
 
  Final objective function value = 9.0
- Best solution found = [ 0.0, 5.0]
+ Sample of best point = Vector{Float64}[ 0.0, 5.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 2
+ Number of iterations = 3
  Number of function evaluations = 3
+
 ```
 
 Upper bounds can be similarly set with `upper=[+Inf,-5]`, for example.
 
 Note, the bounds can also be provided as non-keyword parameters, with:
 ```
-julia> lower = [-Inf,5]; upper = [+Inf, -2];
+julia> lower = [-Inf,5]; upper = [-2,+Inf];
 
-julia> R = spgbox!(f,g!,x,lower,upper)
+julia> R = spgbox!(f,g!,x,lower=lower,upper=upper)
 ```
 
 ## Result data structure and possible outcomes
@@ -93,12 +94,12 @@ structure, which contains the following data:
 
 ```julia-repl
 struct SPGBoxResult
-  x :: Vector{Float64}
-  f :: Float64
-  gnorm :: Float64
-  nit :: Int64
-  nfeval :: Int64
-  ierr :: Int64
+    x :: Vector{Float64}
+    f :: Float64
+    gnorm :: Float64
+    nit :: Int64
+    nfeval :: Int64
+    ierr :: Int64
 end
 ```
 
@@ -205,8 +206,8 @@ The gradient function will be defined accordingly:
 
 ```julia-repl
 julia> function g!(g,x,a,b)
-         g[1] = 2*a*x[1]
-         g[2] = 2*(x[2]-b)
+           g[1] = 2*a*x[1]
+           g[2] = 2*(x[2]-b)
        end
 
 julia> g!(g,x) = g!(g,x,a,b) 
@@ -254,25 +255,26 @@ the variables:
 julia> using SPGBox, ReverseDiff
 
 julia> function f(x)
-         f = 0.
-         for i in eachindex(x)
-           f += x[i]^2
-         end
-         f
+           f = 0.
+           for i in eachindex(x)
+               f += x[i]^2
+           end
+           f
        end
 
 julia> x = rand(2)
 
 julia> spgbox!(f, (g,x) -> ReverseDiff.gradient!(g,f,x), x, lower=[-Inf,2.])
 
- SPGBOX RESULT:
+ SPGBOX RESULT: 
 
- Convergence achieved.
+ Convergence achieved. 
 
  Final objective function value = 4.0
- Best solution found = [ 0.0, 2.0]
+ Sample of best point = Vector{Float64}[ 0.0, 2.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 0
- Number of function evaluations = 1
+ Number of iterations = 3
+ Number of function evaluations = 3
+
 ```
