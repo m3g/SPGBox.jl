@@ -10,11 +10,11 @@
 #
 """
 ```
-spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
+spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)
 ```
 
 ```
-spgbox!(f, g!, lower::AbstractVeOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
+spgbox!(f, g!, lower::AbstractVeOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)
 ```
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found (see `spgbox` for a non-mutating alternative). 
@@ -22,6 +22,19 @@ Minimizes function `f` starting from initial point `x`, given the function to co
 Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`, which can be provided as the fourth and fifth arguments or with keyword parameters.
 
 Returns a structure of type `SPGBoxResult`, containing the best solution found in `x` and the final objective function in `f`.
+
+Alternativelly, a single function that computes the function value and the gradient can be provided, using:
+
+```
+spgbox(fg!, x; lower=..., upper=..., options...)
+```
+or
+```
+spgbox(fg!, lower upper, x; options...)
+```
+
+The `fg!` must be of the form `fg!(g,x)` where `x` is the current point and `g` the array that stores the gradient. And it must return
+the function value.   
 
 # Examples
 ```jldocstest
@@ -53,7 +66,6 @@ Number of function evaluations = 3
 ```
 
 ## With bounds
-
 ```jldocstest
 julia> x = 2 .+ rand(2)
 
@@ -71,6 +83,34 @@ Number of iterations = 3
 Number of function evaluations = 3
 
 ```
+
+## With a single function to compute the function and the gradient
+
+```julia-repl
+julia> function fg!(g,x)
+           g[1] = 2*x[1]
+           g[2] = 2*x[2]
+           fx = x[1]^2 + x[2]^2
+           return fx
+       end
+fg! (generic function with 1 method)
+
+julia> x = rand(2);
+
+julia> spgbox(fg!,x)
+
+ SPGBOX RESULT: 
+
+ Convergence achieved. 
+
+ Final objective function value = 0.0
+ Sample of best point = Vector{Float64}[ 0.0, 0.0]
+ Projected gradient norm = 0.0
+
+ Number of iterations = 3
+ Number of function evaluations = 3
+```
+
 """
 function spgbox!(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T} 
     spgbox!(
@@ -240,20 +280,27 @@ spgbox!(fg!::F, lower, upper, x; kargs...) where {F,G} = spgbox!(fg!, x, lower=l
 
 """
 
+See `spgbox!` for additional help.
+
 ```
 spgbox(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
-```
-
-```
 spgbox(f, g!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
 ```
-
-Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. This call *does not* mutate the `x` vector, instead it will create a (deep)copy of it (see `spgbox!` to the inplace alternative). 
+Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. 
+`f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. 
 
 Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`, which can be provided as the fourth and fifth arguments or with keyword parameters.
 
-Returns a structure of type `SPGBoxResult`, containing the best solution found in `x` and the final objective function in `f`.
+```
+spgbox(fg!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
+spgbox(fg!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
+```
 
+Given a single function `fg!(g,x)` that updates a gradient vector `g` and returns the function value, minimizes the function.  
+
+These functions return a structure of type `SPGBoxResult`, containing the best solution found in `x` and the final objective function in `f`.
+
+These functions *do not* mutate the `x` vector, instead it will create a (deep)copy of it (see `spgbox!` for the in-place alternative). 
 
 """
 function spgbox(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T}
