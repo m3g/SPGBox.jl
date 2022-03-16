@@ -73,7 +73,6 @@ Number of function evaluations = 3
 ```
 """
 function spgbox!(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T} 
-    @show f(x)
     spgbox!(
         (g,x) -> begin 
             g!(g,x)
@@ -96,7 +95,7 @@ function spgbox!(
     nitmax::Int = 100,
     nfevalmax::Int = 1000,
     m::Int = 10,
-    vaux::VAux = VAux(x, (isnothing(func_only) ? fg!(g,x) : func_only(x)), m=m),
+    vaux::VAux = VAux(x, (isnothing(func_only) ? fg!(similar(x),x) : func_only(x)), m=m),
     iprint::Int = 0,
     project_x0::Bool = true
 ) where {T}

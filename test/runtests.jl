@@ -48,9 +48,9 @@ using Unitful
     @test R.x ≈ [-2.0, 1.0]
 
     x = [10.0, 18.0]
-    R = spgbox!(f, g!, x, lower = [-Inf, -2.0], upper = [+Inf, 2])
-    @test R.f ≈ 0.0
-    @test R.x ≈ [0.0, 1.0]
+    R = spgbox!(f, g!, x, lower = [-Inf, 2.0], upper = [-2.0, +Inf])
+    @test R.f ≈ 5.0
+    @test R.x ≈ [-2.0, 2.0]
 
     x = [10.0, 18.0]
     R = spgbox!(f, g!, [-Inf, -2.0], [+Inf, 2], x)
@@ -113,5 +113,36 @@ using Unitful
     R = spgbox!(f_units, g_units!, x, lower = [-Inf, 2.0]u"nm", upper = [-5.0, +Inf]u"nm")
     @test R.f ≈ 26.0u"nm^2"
     @test R.x ≈ [-5.0, 2.0]u"nm"
+
+    #
+    # With a single function to compute function and gradient
+    #
+
+    function fg!(g,x)
+        g[1] = 2 * x[1]
+        g[2] = 2 * (x[2] - 1)
+        fx = x[1]^2 + (x[2] - 1)^2
+        return fx
+    end
+
+    x = [10.0, 18.0]
+    R = spgbox!(fg!, x)
+    @test R.f ≈ 0.0
+    @test R.x ≈ [0.0, 1.0]
+
+    x = [10.0, 18.0]
+    R = spgbox!(fg!, x, lower = [-Inf, 2.0], upper = [-2.0, +Inf])
+    @test R.f ≈ 5.0
+    @test R.x ≈ [-2.0, 2.0]
+
+    x = [10.0, 18.0]
+    R = spgbox(fg!, x)
+    @test R.f ≈ 0.0
+    @test R.x ≈ [0.0, 1.0]
+
+    x = [10.0, 18.0]
+    R = spgbox!(fg!, x, lower = [-Inf, 2.0], upper = [-2.0, +Inf])
+    @test R.f ≈ 5.0
+    @test R.x ≈ [-2.0, 2.0]
 
 end
