@@ -10,11 +10,11 @@
 #
 """
 ```
-spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
+spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)
 ```
 
 ```
-spgbox!(f, g!, lower::AbstractVeOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
+spgbox!(f, g!, lower::AbstractVeOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)
 ```
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found (see `spgbox` for a non-mutating alternative). 
@@ -22,6 +22,19 @@ Minimizes function `f` starting from initial point `x`, given the function to co
 Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`, which can be provided as the fourth and fifth arguments or with keyword parameters.
 
 Returns a structure of type `SPGBoxResult`, containing the best solution found in `x` and the final objective function in `f`.
+
+Alternativelly, a single function that computes the function value and the gradient can be provided, using:
+
+```
+spgbox(fg!, x; lower=..., upper=..., options...)
+```
+or
+```
+spgbox(fg!, lower upper, x; options...)
+```
+
+The `fg!` must be of the form `fg!(g,x)` where `x` is the current point and `g` the array that stores the gradient. And it must return
+the function value.   
 
 # Examples
 ```jldocstest
@@ -53,7 +66,6 @@ Number of function evaluations = 3
 ```
 
 ## With bounds
-
 ```jldocstest
 julia> x = 2 .+ rand(2)
 
@@ -71,20 +83,61 @@ Number of iterations = 3
 Number of function evaluations = 3
 
 ```
+
+## With a single function to compute the function and the gradient
+
+```julia-repl
+julia> function fg!(g,x)
+           g[1] = 2*x[1]
+           g[2] = 2*x[2]
+           fx = x[1]^2 + x[2]^2
+           return fx
+       end
+fg! (generic function with 1 method)
+
+julia> x = rand(2);
+
+julia> spgbox(fg!,x)
+
+ SPGBOX RESULT: 
+
+ Convergence achieved. 
+
+ Final objective function value = 0.0
+ Sample of best point = Vector{Float64}[ 0.0, 0.0]
+ Projected gradient norm = 0.0
+
+ Number of iterations = 3
+ Number of function evaluations = 3
+```
+
 """
+function spgbox!(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T} 
+    spgbox!(
+        (g,x) -> begin 
+            g!(g,x)
+            return f(x)
+        end,
+        x, f; kargs...
+    )
+end
+
+#
+# Call with a single function to compute the function and the gradient
+#
 function spgbox!(
-    f::Function,
-    g!::Function,
-    x::AbstractVecOrMat{T};
+    fg!::Function,
+    x::AbstractVecOrMat{T},
+    func_only = nothing;
     lower::Union{Nothing,AbstractVecOrMat{T}} = nothing,
     upper::Union{Nothing,AbstractVecOrMat{T}} = nothing,
     eps = 1.e-5 * oneunit(T),
     nitmax::Int = 100,
     nfevalmax::Int = 1000,
     m::Int = 10,
-    vaux::VAux = VAux(x, f(x), m=m),
+    vaux::VAux = VAux(x, (isnothing(func_only) ? fg!(similar(x),x) : func_only(x)), m=m),
     iprint::Int = 0,
-    project_x0::Bool = true,
+    project_x0::Bool = true
 ) where {T}
 
     # Number of variables
@@ -130,19 +183,21 @@ function spgbox!(
         end
     end
 
-    # Objective function at initial point
-    nfeval = 1
-    fcurrent = f(x)
-    g!(g, x)
-    gnorm = pr_gradnorm(g, x, lower, upper)
+    # Iteration counter
+    nit = 1
 
+    # Objective function and gradient at initial point
+    nfeval = 1
+    fcurrent = fg!(g,x)
+    gnorm = pr_gradnorm(g, x, lower, upper)
+    gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
+
+    # Initialize array of previous function values
     tspg = one(T)
     for i in eachindex(fprev)
         fprev[i] = fcurrent
     end
 
-    # Iteration counter
-    nit = 1
     while nit < nitmax
 
         if iprint > 0
@@ -150,66 +205,43 @@ function spgbox!(
             println(" Iteration: ", nit)
             println(" x = ", x[begin], " ... ", x[end])
             println(" Objective function value = ", fcurrent)
-        end
-
-        # Compute projected gradient norm
-        gnorm = pr_gradnorm(g, x, lower, upper)
-
-        if iprint > 0
             println(" ")
             println(" Norm of the projected gradient = ", gnorm)
             println(" Number of function evaluations = ", nfeval)
         end
 
-        # Stopping criteria
-        if gnorm <= eps
-            ierr = 0
-            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, ierr)
-        end
-        if nfeval >= nfevalmax
-            ierr = 2
-            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, ierr)
-        end
-
         t = tspg
         fref = maximum(fprev)
-
         if iprint > 2
             println(" fref = ", fref)
             println(" fprev = ", fprev)
             println(" t = ", t)
         end
 
-        fn = typemax(eltype(fprev))
-        while (fn > fref)
-            for i in eachindex(x)
-                xn[i] = x[i] - t * g[i]
-                if !isnothing(upper)
-                    xn[i] = min(xn[i], upper[i])
-                end
-                if !isnothing(lower)
-                    xn[i] = max(xn[i], lower[i])
-                end
-            end
+        # Evaluate trial point
+        compute_xn!(xn,x,t,g,lower,upper)
+        nfeval = nfeval + 1
+        nfeval > nfevalmax && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 2)
+        fn = fg!(gn, xn)
 
+        while (fn > fref)
             if iprint > 2
                 println(" xn = ", xn[begin], " ... ", xn[end])
-            end
-            nfeval = nfeval + 1
-            fn = f(xn)
-            if iprint > 2
                 println(" f[end] = ", fn, " fref = ", fref)
             end
-            # Maximum number of function evaluations achieved
-            if nfeval > nfevalmax
-                ierr = 2
-                return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, ierr)
+            compute_xn!(xn,x,t,g,lower,upper)
+            nfeval = nfeval + 1
+            nfeval > nfevalmax && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 2)
+            if !isnothing(func_only)
+                fn = func_only(xn)
+            else
+                fn = fg!(gn,xn)
             end
-            # Reduce region
+            # Reduce step
             t = t / 2
         end
 
-        g!(gn, xn)
+        # Trial point accepted
         num = zero(T)
         den = zero(T)
         for i in eachindex(x)
@@ -231,44 +263,64 @@ function spgbox!(
         end
         fprev[end] = fcurrent
         nit = nit + 1
+
+        # Compute projected gradient norm
+        gnorm = pr_gradnorm(g, x, lower, upper)
+        gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
     end
 
     # Maximum number of iterations achieved
-    ierr = 1
-    return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, ierr)
-
+    return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 1)
 end
 #
 # Call with lower and upper as positional arguments
 #
 spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, lower=lower, upper=upper, kargs...)
+spgbox!(fg!::F, lower, upper, x; kargs...) where {F,G} = spgbox!(fg!, x, lower=lower, upper=upper, kargs...)
 
 """
+
+See `spgbox!` for additional help.
 
 ```
 spgbox(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
-```
-
-```
 spgbox(f, g!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
 ```
-
-Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. This call *does not* mutate the `x` vector, instead it will create a (deep)copy of it (see `spgbox!` to the inplace alternative). 
+Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. 
+`f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. 
 
 Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`, which can be provided as the fourth and fifth arguments or with keyword parameters.
 
-Returns a structure of type `SPGBoxResult`, containing the best solution found in `x` and the final objective function in `f`.
+```
+spgbox(fg!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
+spgbox(fg!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
+```
 
+Given a single function `fg!(g,x)` that updates a gradient vector `g` and returns the function value, minimizes the function.  
+
+These functions return a structure of type `SPGBoxResult`, containing the best solution found in `x` and the final objective function in `f`.
+
+These functions *do not* mutate the `x` vector, instead it will create a (deep)copy of it (see `spgbox!` for the in-place alternative). 
 
 """
-function spgbox(f::F, g!::G, x; kargs...) where {F,G}
+function spgbox(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T}
     x0 = deepcopy(x)
     return spgbox!(f, g!, x0; kargs...)
+end
+# With a single function to compute the function and the gradient
+function spgbox(fg::FG, x::AbstractVecOrMat{T}; kargs...) where {FG<:Function,T}
+    x0 = deepcopy(x)
+    return spgbox!(fg, x0; kargs...)
 end
 #
 # call with lower and upper as positional arguments
 #
-function spgbox(f::F, g!::G, lower, upper, x; kargs...) where {F,G}
+function spgbox(f::F, g!::G, lower, upper, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T}
     x0 = deepcopy(x)
     return spgbox!(f, g!, lower, upper, x0; kargs...)
+end
+# With a single function to compute the function and the gradient
+function spgbox(fg::FG, lower, upper, x::AbstractVecOrMat{T}; kargs...) where {FG<:Function,T}
+    x0 = deepcopy(x)
+    return spgbox!(fg, lower, upper, x0; kargs...)
 end

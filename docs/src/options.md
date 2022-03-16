@@ -7,6 +7,40 @@ criteria and to deal with the memory management of the execution.
 
 Two solver functions are available: `spgbox!` and `spgbox`. The only difference is that `spgbox!` operates inplace in the input vector, while `spgbox` creates a copy of it and leaves the input variable unchanged. To perform completely non-allocating executions, use `spgbox!` and [preallocate the auxiliary vectors](https://m3g.github.io/SPGBox.jl/stable/options/#Memory-preallocation).
 
+## Function and gradient with one function
+
+Sometimes it is convenient, and more effective, to compute the function and gradient with the same function.
+This can be done with `SPGBox` by defining a function, for example `fg!(g,x)` which updates the gradient array `g`,
+and returns the function value `fx`. For example:
+
+```julia-repl
+julia> function fg!(g,x)
+           fx = zero(eltype(x))
+           for i in eachindex(x)
+               fx += (x[i] - i)^2
+               g[i] = 2*(x[i] - i)
+           end
+           return fx
+       end
+fg! (generic function with 1 method)
+
+julia> x = rand(3);
+
+julia> spgbox(fg!,x)
+
+ SPGBOX RESULT: 
+
+ Convergence achieved. 
+
+ Final objective function value = 0.0
+ Sample of best point = Vector{Float64}[ 1.0, 2.0, 3.0]
+ Projected gradient norm = 0.0
+
+ Number of iterations = 3
+ Number of function evaluations = 3
+
+```
+
 ## Convergence criteria
 
 Parameters exist to set the convergence threshold, maximum number of

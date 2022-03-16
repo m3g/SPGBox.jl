@@ -20,6 +20,9 @@ julia> function g!(g,x)
 By Julia convention, to indicate that the gradient function modifies the vector `g`, we add
 the `!` to its name, although this does not affect at all its behavior.
 
+It is also possible to provide a single function that computes both the function value and the 
+gradient, as explained in the [Options](https://m3g.github.io/SPGBox.jl/stable/options) menu.
+
 ## Calling the solver, without bounds
 
 The solver function is `spgbox!`, which mutates the input value of `x` (with the best solution found in it at the output). Alternatively, use `spgbox` to call the solver without modifying the values of the input vector (although a copy of if this vector will be produced). 
