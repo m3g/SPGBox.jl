@@ -151,12 +151,13 @@ include("aux_test.jl")
     #
     # An example that verify that the line search was fixed
     #
-    f, g!, x0, lower, upper, prob = cutest2spg("S368")
-    R = spgbox!(f, g!, x0, lower = lower, upper = upper, nitmax = 10000)
-    g = similar(R.x)
-    g!(g, R.x)
-    @test SPGBox.pr_gradnorm(g, R.x, lower, upper) <= 1.0e-5
-    finalize(prob)
-
+    if Sys.islinux()
+        f, g!, x0, lower, upper, prob = cutest2spg("S368")
+        R = spgbox!(f, g!, x0, lower = lower, upper = upper, nitmax = 10000)
+        g = similar(R.x)
+        g!(g, R.x)
+        @test SPGBox.pr_gradnorm(g, R.x, lower, upper) <= 1.0e-5
+        finalize(prob)
+    end
 
 end
