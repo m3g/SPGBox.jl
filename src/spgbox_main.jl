@@ -218,28 +218,43 @@ function spgbox!(
             println(" t = ", t)
         end
 
-        # Evaluate trial point
-        compute_xn!(xn,x,t,g,lower,upper)
-        nfeval = nfeval + 1
-        nfeval > nfevalmax && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 2)
-        fn = fg!(gn, xn)
-
-        while (fn > fref)
-            if iprint > 2
-                println(" xn = ", xn[begin], " ... ", xn[end])
-                println(" f[end] = ", fn, " fref = ", fref)
-            end
+        trials = 0
+        fn = 0.0
+        while true
+            # Compute a new trial point and its function values
             compute_xn!(xn,x,t,g,lower,upper)
             nfeval = nfeval + 1
             nfeval > nfevalmax && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 2)
-            if !isnothing(func_only)
-                fn = func_only(xn)
+            trials += 1
+            if trials == 1
+                fn = fg!(gn, xn)
             else
-                fn = fg!(gn,xn)
+                if iprint > 2
+                    println(" xn = ", xn[begin], " ... ", xn[end])
+                    println(" f[end] = ", fn, " fref = ", fref)
+                end
+                if !isnothing(func_only)
+                    fn = func_only(xn)
+                else
+                    fn = fg!(gn, xn)
+                end
             end
-            # Reduce step
-            t = t / 2
-        end
+
+            # If the point is not acceptable
+            if fn >= fref
+                # Reduce step
+                t = t / 2
+            # If the point is acceptable
+            else
+                # Update the gradient at the accepted point, if necessary
+                if trials > 1 && !isnothing(func_only)
+                    fn = fg!(gn, xn)
+                    nfeval += 1
+                    nfeval > nfevalmax && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 2)
+                end
+                break
+            end
+        end 
 
         # Trial point accepted
         num = zero(T)
