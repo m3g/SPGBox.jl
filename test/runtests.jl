@@ -2,6 +2,9 @@ using Test
 using SPGBox
 using Unitful
 
+include("aux_test.jl")
+include("../src/auxiliary_functions.jl")
+
 @testset "simple quadratic" begin
 
     f(x) = x[1]^2 + (x[2] - 1)^2
@@ -144,5 +147,17 @@ using Unitful
     R = spgbox!(fg!, x, lower = [-Inf, 2.0], upper = [-2.0, +Inf])
     @test R.f ≈ 5.0
     @test R.x ≈ [-2.0, 2.0]
+
+
+    #
+    # An example that verify that the line search was fixed
+    #
+    f, g!, x0, lower, upper, prob = cutest2spg("S368")
+    R = spgbox!(f, g!, x0, lower = lower, upper = upper, nitmax = 10000)
+    g = similar(R.x)
+    g!(g, R.x)
+    @test pr_gradnorm(g, R.x, lower, upper) <= 1.0e-5
+    finalize(prob)
+
 
 end
