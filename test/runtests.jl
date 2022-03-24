@@ -1,6 +1,7 @@
 using Test
 using SPGBox
 using Unitful
+using ReverseDiff
 
 @testset "simple quadratic" begin
     
@@ -149,7 +150,6 @@ using Unitful
     #
     # An example that verify that the line search was fixed
     #
-    using ReverseDiff
     x0 = [i / 9 for i = 1:8]
     fH368(x) = -1.0*sum(x.^2)*sum(x.^4) + sum(x.^3)^2;
     function gH368!(g, x)
