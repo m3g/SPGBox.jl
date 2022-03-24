@@ -3,7 +3,6 @@ using SPGBox
 using Unitful
 
 include("aux_test.jl")
-include("../src/auxiliary_functions.jl")
 
 @testset "simple quadratic" begin
 
@@ -156,7 +155,7 @@ include("../src/auxiliary_functions.jl")
     R = spgbox!(f, g!, x0, lower = lower, upper = upper, nitmax = 10000)
     g = similar(R.x)
     g!(g, R.x)
-    @test pr_gradnorm(g, R.x, lower, upper) <= 1.0e-5
+    @test SPGBox.pr_gradnorm(g, R.x, lower, upper) <= 1.0e-5
     finalize(prob)
 
 
