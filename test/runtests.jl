@@ -2,8 +2,6 @@ using Test
 using SPGBox
 using Unitful
 
-include("aux_test.jl")
-
 @testset "simple quadratic" begin
 
     f(x) = x[1]^2 + (x[2] - 1)^2
@@ -152,6 +150,7 @@ include("aux_test.jl")
     # An example that verify that the line search was fixed
     #
     if Sys.islinux()
+        include("aux_test.jl")
         f, g!, x0, lower, upper, prob = cutest2spg("S368")
         R = spgbox!(f, g!, x0, lower = lower, upper = upper, nitmax = 10000)
         g = similar(R.x)
