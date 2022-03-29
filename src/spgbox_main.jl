@@ -193,7 +193,8 @@ function spgbox!(
     gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
 
     # Initialize array of previous function values
-    tspg = one(T)
+    eps14 = sqrt(sqrt(Base.eps(T))) 
+    tspg = eps14*one(T) #max(eps14, eps14*gnorm)
     for i in eachindex(fprev)
         fprev[i] = fcurrent
     end
