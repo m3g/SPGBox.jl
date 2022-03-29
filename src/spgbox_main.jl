@@ -194,7 +194,7 @@ function spgbox!(
 
     # Initialize array of previous function values
     eps14 = sqrt(sqrt(Base.eps(T))) 
-    tspg = eps14*one(T) #max(eps14, eps14*gnorm)
+    tspg = 1.0e8 #eps14*one(T) #max(eps14, eps14*gnorm)
     for i in eachindex(fprev)
         fprev[i] = fcurrent
     end
