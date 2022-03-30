@@ -198,7 +198,7 @@ function spgbox!(
 
     # Initialize array of previous function values
    for i in eachindex(fprev)
-        fprev[i] = fcurrent + 2*abs(fcurrent)
+        fprev[i] = fcurrent + 10*abs(fcurrent)
     end
 
     while nit < nitmax
