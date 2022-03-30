@@ -1,4 +1,4 @@
-#
+d#
 # Algorithm of:
 #
 # NONMONOTONE SPECTRAL PROJECTED GRADIENT METHODS ON CONVEX SETS
@@ -192,11 +192,13 @@ function spgbox!(
     gnorm = pr_gradnorm(g, x, lower, upper)
     gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
 
-    # Initialize array of previous function values
+    # Do a consertive initial step
     eps14 = sqrt(sqrt(Base.eps(T))) 
     tspg = max(eps14, eps14*gnorm)
-    for i in eachindex(fprev)
-        fprev[i] = fcurrent
+
+    # Initialize array of previous function values
+   for i in eachindex(fprev)
+        fprev[i] = fcurrent + 2*abs(fcurrent)
     end
 
     while nit < nitmax
