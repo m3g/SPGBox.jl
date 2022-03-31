@@ -131,7 +131,7 @@ function spgbox!(
     func_only = nothing;
     lower::Union{Nothing,AbstractVecOrMat{T}} = nothing,
     upper::Union{Nothing,AbstractVecOrMat{T}} = nothing,
-    eps = 1.e-5 * oneunit(T),
+    eps = oneunit(T) / 100_000,
     nitmax::Int = 100,
     nfevalmax::Int = 1000,
     m::Int = 10,
