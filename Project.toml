@@ -4,15 +4,16 @@ authors = ["Leandro Martinez <leandro@iqm.unicamp.br>"]
 version = "0.5.5-DEV"
 
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [compat]
 Unitful = "1"
 julia = "1"
 
 [extras]
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
-ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 
 [targets]
 test = ["Test", "Unitful", "ReverseDiff"]
