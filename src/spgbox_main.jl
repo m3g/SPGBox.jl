@@ -8,6 +8,8 @@
 # Implemented by J. M. Martínez (IMECC - UNICAMP)
 # Iinitally translated and adapted to Julia by L. Martínez (IQ-UNICAMP)
 #
+using LinearAlgebra
+
 """
 ```
 spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)
@@ -112,14 +114,11 @@ julia> spgbox(fg!,x)
 ```
 
 """
-function spgbox!(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T} 
-    spgbox!(
-        (g,x) -> begin 
-            g!(g,x)
-            return f(x)
-        end,
-        x, f; kargs...
-    )
+function spgbox!(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T}
+    spgbox!((g, x) -> begin
+        g!(g, x)
+        return f(x)
+    end, x, f; kargs...)
 end
 
 #
@@ -135,11 +134,10 @@ function spgbox!(
     nitmax::Int = 100,
     nfevalmax::Int = 1000,
     m::Int = 10,
-    vaux::VAux = VAux(x, (isnothing(func_only) ? fg!(similar(x),x) : func_only(x)), m=m),
+    vaux::VAux = VAux(x, (isnothing(func_only) ? fg!(similar(x), x) : func_only(x)), m = m),
     iprint::Int = 0,
-    project_x0::Bool = true
+    project_x0::Bool = true,
 ) where {T}
-
     # Number of variables
     n = length(x)
 
@@ -188,15 +186,15 @@ function spgbox!(
 
     # Objective function and gradient at initial point
     nfeval = 1
-    fcurrent = fg!(g,x)
+    fcurrent = fg!(g, x)
     gnorm = pr_gradnorm(g, x, lower, upper)
     gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
 
     # Do a consertive initial step
-    tspg = one(T)
+    tspg = one(T) #max(one(T) / 10000, gnorm / 10000)
 
     # Initialize array of previous function values
-   for i in eachindex(fprev)
+    for i in eachindex(fprev)
         fprev[i] = fcurrent
     end
 
@@ -212,7 +210,6 @@ function spgbox!(
             println(" Number of function evaluations = ", nfeval)
         end
 
-        t = tspg
         fref = maximum(fprev)
         if iprint > 2
             println(" fref = ", fref)
@@ -220,43 +217,15 @@ function spgbox!(
             println(" t = ", t)
         end
 
-        trials = 0
-        fn = 0.0
-        while true
-            # Compute a new trial point and its function values
-            compute_xn!(xn,x,t,g,lower,upper)
-            nfeval = nfeval + 1
-            nfeval > nfevalmax && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 2)
-            trials += 1
-            if trials == 1
-                fn = fg!(gn, xn)
-            else
-                if iprint > 2
-                    println(" xn = ", xn[begin], " ... ", xn[end])
-                    println(" f[end] = ", fn, " fref = ", fref)
-                end
-                if !isnothing(func_only)
-                    fn = func_only(xn)
-                else
-                    fn = fg!(gn, xn)
-                end
-            end
+        compute_xn!(xn, x, tspg, g, lower, upper)
 
-            # If the point is not acceptable
-            if fn >= fref
-                # Reduce step
-                t = t / 2
-            # If the point is acceptable
-            else
-                # Update the gradient at the accepted point, if necessary
-                if trials > 1 && !isnothing(func_only)
-                    fn = fg!(gn, xn)
-                    nfeval += 1
-                    nfeval > nfevalmax && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 2)
-                end
-                break
-            end
-        end 
+        lsfeval, fn =
+            safequad_ls(xn, gn, x, g, fcurrent, tspg, fref, nfevalmax - nfeval, iprint, func_only, fg!, lower, upper)
+        if lsfeval < 0
+            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval - lsfeval, 2)
+        else
+            nfeval += lsfeval
+        end
 
         # Trial point accepted
         num = zero(T)
@@ -268,7 +237,7 @@ function spgbox!(
         if den <= zero(T)
             tspg = T(100)
         else
-            tspg = min(1000 * one(T), one(T) * num / den)
+            tspg = max(min(T(1.0e30), num / den), T(1.0e-30))
         end
         fcurrent = fn
         for i in eachindex(x)
@@ -289,11 +258,94 @@ function spgbox!(
     # Maximum number of iterations achieved
     return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 1)
 end
+
+"Perform a safeguarded quadratic line search"
+function safequad_ls(
+    xn::AbstractVecOrMat{T},
+    gn::AbstractVecOrMat{T},
+    x::AbstractVecOrMat{T},
+    g::AbstractVecOrMat{T},
+    fcurrent::T,
+    tspg::T,
+    fref::T,
+    nfevalmax::Int,
+    iprint::Int,
+    func_only::Union{Nothing,Function},
+    fg!::Function,
+    lower::Union{Nothing,AbstractVecOrMat{T}},
+    upper::Union{Nothing,AbstractVecOrMat{T}},
+) where {T}
+    one_T = one(T)
+    # Armijo parameter
+    gamma = one_T / 10_000
+
+    gtd = zero(T)
+    for i in eachindex(x)
+        gtd += (xn[i] - x[i])*g[i]
+    end
+
+    # Compute function values at initial point
+    fn = fg!(gn, xn)
+    nfeval = 1
+    nfeval > nfevalmax && return -nfeval, fn
+
+    alpha, trials = one_T, 0
+    while true
+        trials += 1
+    if trials > 1
+        # Compute a new trial point and its function values
+        compute_xn!(xn, x, alpha * tspg, g, lower, upper)
+        gtd = zero(T)
+        for i in eachindex(x)
+            gtd += (xn[i] - x[i]) * g[i]
+        end
+        if iprint > 2
+            println(" xn = ", xn[begin], " ... ", xn[end])
+            println(" f[end] = ", fn, " fref = ", fref)
+        end
+        if !isnothing(func_only)
+            fn = func_only(xn)
+        else
+            fn = fg!(gn, xn)
+        end
+        nfeval += 1
+        nfeval > nfevalmax && return -nfeval, fn
+    end
+
+        # If the point is not acceptable
+        if fn >= fref + gamma * gtd
+            # Perform a safeguarded quadratic interpolation step
+            if alpha <= one_T / 10
+                alpha /= 2
+            else
+                atemp = -gtd * alpha^2 / (2 * (fn - fcurrent - alpha * gtd))
+
+                if atemp <= one_T / 10 || atemp >= 9 * one_T / 10 * alpha
+                    atemp = alpha / 2
+                end
+                alpha = atemp
+            end
+            # If the point is acceptable
+        else
+            # Update the gradient at the accepted point, if necessary
+            if trials > 1 && !isnothing(func_only)
+                fn = fg!(gn, xn)
+                nfeval += 1
+                nfeval > nfevalmax && return -nfeval, fn
+            end
+            break
+        end
+    end
+
+    return nfeval, fn
+end
+
+
 #
 # Call with lower and upper as positional arguments
 #
-spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, lower=lower, upper=upper, kargs...)
-spgbox!(fg!::F, lower, upper, x; kargs...) where {F,G} = spgbox!(fg!, x, lower=lower, upper=upper, kargs...)
+spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, lower = lower, upper = upper, kargs...)
+spgbox!(fg!::F, lower, upper, x; kargs...) where {F,G} = spgbox!(fg!, x, lower = lower, upper = upper, kargs...)
 
 """
 

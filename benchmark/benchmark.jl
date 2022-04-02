@@ -35,13 +35,14 @@ function run_tests()
     times = Float64[]
 
     for test in tests.TESTS
-        println("Solving $test.")
+        print("Solving $test")
         R, stats = cutest_test(test)
         solved = R.ierr == 0 ? 1 : -1
         append!(ns, length(R.x))
         append!(niters, solved * R.nit)
         append!(nfevals, solved * R.nfeval)
         append!(times, solved * median(stats.times) / 1.0e9)
+        println(" - FEVAL = $(solved * R.nfeval).")
     end
     results = copy(tests)
     results[!, "n"] .= ns
@@ -51,7 +52,7 @@ function run_tests()
     return results
 end
 
-function main()
+function benchmark()
     results = run_tests()
     # Format the time duration in scientific notation
     results[!, "TIME"] = map(t -> @sprintf("%e", t), results[!, "TIME"])
@@ -59,4 +60,6 @@ function main()
     return println(results)
 end
 
-main()
+if abspath(PROGRAM_FILE) == @__FILE__
+    benchmark()
+end

@@ -3,7 +3,7 @@ using CSV
 using Plots
 using BenchmarkProfiles
 
-function main(args)
+function genprof(args)
     if length(args) == 1
         metric = args[1]
     else
@@ -22,5 +22,5 @@ function main(args)
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
-    main(ARGS)
+    genprof(ARGS)
 end
