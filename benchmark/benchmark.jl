@@ -21,8 +21,8 @@ end
 
 function cutest_test(probname)
     f, g!, x0, lower, upper, prob = cutest2spg(probname)
-    R = spgbox!(f, g!, x0; lower=lower, upper=upper, nitmax=50_000, nfevalmax=200_000)
-    stats = @benchmark spgbox!(
+    R = spgbox(f, g!, x0; lower=lower, upper=upper, nitmax=50_000, nfevalmax=200_000)
+    stats = @benchmark spgbox(
         $f, $g!, $x0; lower=$lower, upper=$upper, nitmax=50_000, nfevalmax=200_000
     )
     finalize(prob)
@@ -56,7 +56,7 @@ function benchmark()
     results = run_tests()
     # Format the time duration in scientific notation
     results[!, "TIME"] = map(t -> @sprintf("%e", t), results[!, "TIME"])
-    CSV.write("bench_results.txt", results)
+    CSV.write("bench_results.csv", results)
     return println(results)
 end
 

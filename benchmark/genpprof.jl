@@ -9,8 +9,8 @@ function genpprof(args)
     else
         metric = "FEVAL"
     end
-    base = DataFrame(CSV.File("base_bench.txt"))
-    new = DataFrame(CSV.File("bench_results.txt"))
+    base = DataFrame(CSV.File("base_bench.csv"))
+    new = DataFrame(CSV.File("bench_results.csv"))
 
     pp = performance_profile(
     PlotsBackend(), 

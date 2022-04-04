@@ -138,6 +138,9 @@ function spgbox!(
     iprint::Int = 0,
     project_x0::Bool = true,
 ) where {T}
+    # Adimentional variation of T (base Number type)
+    adT = typeof(one(T))
+
     # Number of variables
     n = length(x)
 
@@ -191,11 +194,13 @@ function spgbox!(
     gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
 
     # Do a consertive initial step
-    tspg = one(T) #max(one(T) / 10000, gnorm / 10000)
+    small = T(sqrt(Base.eps(T)))
+    tspg = small / max(T(1), gnorm)
 
     # Initialize array of previous function values
+    # Allow slight nonmonotonicity
     for i in eachindex(fprev)
-        fprev[i] = fcurrent
+        fprev[i] = fcurrent + abs(fcurrent) / 10
     end
 
     while nit < nitmax
@@ -235,9 +240,9 @@ function spgbox!(
             den = den + (xn[i] - x[i]) * (gn[i] - g[i]) / oneunit(T)
         end
         if den <= zero(T)
-            tspg = T(100)
+            tspg = adT(100)
         else
-            tspg = max(min(T(1.0e30), num / den), T(1.0e-30))
+            tspg = max(min(adT(1.0e30), num / den), adT(1.0e-30))
         end
         fcurrent = fn
         for i in eachindex(x)
@@ -265,9 +270,9 @@ function safequad_ls(
     gn::AbstractVecOrMat{T},
     x::AbstractVecOrMat{T},
     g::AbstractVecOrMat{T},
-    fcurrent::T,
-    tspg::T,
-    fref::T,
+    fcurrent::Number,
+    tspg::Number,
+    fref::Number,
     nfevalmax::Int,
     iprint::Int,
     func_only::Union{Nothing,Function},
@@ -279,7 +284,7 @@ function safequad_ls(
     # Armijo parameter
     gamma = one_T / 10_000
 
-    gtd = zero(T)
+    gtd = zero(fref)
     for i in eachindex(x)
         gtd += (xn[i] - x[i])*g[i]
     end
