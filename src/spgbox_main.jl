@@ -8,8 +8,6 @@
 # Implemented by J. M. Martínez (IMECC - UNICAMP)
 # Iinitally translated and adapted to Julia by L. Martínez (IQ-UNICAMP)
 #
-using LinearAlgebra
-
 """
 ```
 spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)
@@ -226,6 +224,7 @@ function spgbox!(
 
         lsfeval, fn =
             safequad_ls(xn, gn, x, g, fcurrent, tspg, fref, nfevalmax - nfeval, iprint, func_only, fg!, lower, upper)
+
         if lsfeval < 0
             return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval - lsfeval, 2)
         else
@@ -297,25 +296,25 @@ function safequad_ls(
     alpha, trials = one_T, 0
     while true
         trials += 1
-    if trials > 1
-        # Compute a new trial point and its function values
-        compute_xn!(xn, x, alpha * tspg, g, lower, upper)
-        gtd = zero(T)
-        for i in eachindex(x)
-            gtd += (xn[i] - x[i]) * g[i]
+        if trials > 1
+            # Compute a new trial point and its function values
+            compute_xn!(xn, x, alpha * tspg, g, lower, upper)
+            gtd = zero(T)
+            for i in eachindex(x)
+                gtd += (xn[i] - x[i]) * g[i]
+            end
+            if iprint > 2
+                println(" xn = ", xn[begin], " ... ", xn[end])
+                println(" f[end] = ", fn, " fref = ", fref)
+            end
+            if !isnothing(func_only)
+                fn = func_only(xn)
+            else
+                fn = fg!(gn, xn)
+            end
+            nfeval += 1
+            nfeval > nfevalmax && return -nfeval, fn
         end
-        if iprint > 2
-            println(" xn = ", xn[begin], " ... ", xn[end])
-            println(" f[end] = ", fn, " fref = ", fref)
-        end
-        if !isnothing(func_only)
-            fn = func_only(xn)
-        else
-            fn = fg!(gn, xn)
-        end
-        nfeval += 1
-        nfeval > nfevalmax && return -nfeval, fn
-    end
 
         # If the point is not acceptable
         if fn >= fref + gamma * gtd
@@ -324,7 +323,6 @@ function safequad_ls(
                 alpha /= 2
             else
                 atemp = -gtd * alpha^2 / (2 * (fn - fcurrent - alpha * gtd))
-
                 if atemp <= one_T / 10 || atemp >= 9 * one_T / 10 * alpha
                     atemp = alpha / 2
                 end

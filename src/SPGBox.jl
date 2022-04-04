@@ -1,5 +1,7 @@
 module SPGBox
 
+using LinearAlgebra
+
 include("./SPGBoxResult.jl")
 include("./VAux.jl")
 include("./auxiliary_functions.jl")
