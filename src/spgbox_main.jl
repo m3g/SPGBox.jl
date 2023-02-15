@@ -348,7 +348,7 @@ end
 # Call with lower and upper as positional arguments
 #
 spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, lower = lower, upper = upper, kargs...)
-spgbox!(fg!::F, lower, upper, x; kargs...) where {F,G} = spgbox!(fg!, x, lower = lower, upper = upper, kargs...)
+spgbox!(fg!::F, lower, upper, x; kargs...) where {F} = spgbox!(fg!, x, lower = lower, upper = upper, kargs...)
 
 """
 
