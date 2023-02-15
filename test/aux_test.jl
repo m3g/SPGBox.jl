@@ -3,7 +3,7 @@ using CUTEst
 
 function cutest2spg(probname)
     prob = CUTEstModel(probname)
-    
+
     f(x) = obj(prob, x)
     function g!(g, x)
         g .= grad(prob, x)

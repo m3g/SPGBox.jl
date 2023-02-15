@@ -9,13 +9,8 @@
 # Iinitally translated and adapted to Julia by L. Martínez (IQ-UNICAMP)
 #
 """
-```
-spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)
-```
-
-```
-spgbox!(f, g!, lower::AbstractVeOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)
-```
+    spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)
+    spgbox!(f, g!, lower::AbstractVeOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. It modifies the `x` vector, which will contain the best solution found (see `spgbox` for a non-mutating alternative). 
 
@@ -114,9 +109,9 @@ julia> spgbox(fg!,x)
 """
 function spgbox!(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T}
     spgbox!((g, x) -> begin
-        g!(g, x)
-        return f(x)
-    end, x, f; kargs...)
+            g!(g, x)
+            return f(x)
+        end, x, f; kargs...)
 end
 
 #
@@ -125,16 +120,16 @@ end
 function spgbox!(
     fg!::Function,
     x::AbstractVecOrMat{T},
-    func_only = nothing;
-    lower::Union{Nothing,AbstractVecOrMat{T}} = nothing,
-    upper::Union{Nothing,AbstractVecOrMat{T}} = nothing,
-    eps = oneunit(T) / 100_000,
-    nitmax::Int = 100,
-    nfevalmax::Int = 1000,
-    m::Int = 10,
-    vaux::VAux = VAux(x, (isnothing(func_only) ? fg!(similar(x), x) : func_only(x)), m = m),
-    iprint::Int = 0,
-    project_x0::Bool = true,
+    func_only=nothing;
+    lower::Union{Nothing,AbstractVecOrMat{T}}=nothing,
+    upper::Union{Nothing,AbstractVecOrMat{T}}=nothing,
+    eps=oneunit(T) / 100_000,
+    nitmax::Int=100,
+    nfevalmax::Int=1000,
+    m::Int=10,
+    vaux::VAux=VAux(x, (isnothing(func_only) ? fg!(similar(x), x) : func_only(x)), m=m),
+    iprint::Int=0,
+    project_x0::Bool=true
 ) where {T}
     # Adimentional variation of T (base Number type)
     adT = typeof(one(T))
@@ -285,7 +280,7 @@ function safequad_ls(
 
     gtd = zero(fref)
     for i in eachindex(x)
-        gtd += (xn[i] - x[i])*g[i]
+        gtd += (xn[i] - x[i]) * g[i]
     end
 
     # Compute function values at initial point
@@ -347,17 +342,15 @@ end
 #
 # Call with lower and upper as positional arguments
 #
-spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, lower = lower, upper = upper, kargs...)
-spgbox!(fg!::F, lower, upper, x; kargs...) where {F} = spgbox!(fg!, x, lower = lower, upper = upper, kargs...)
+spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, lower=lower, upper=upper, kargs...)
+spgbox!(fg!::F, lower, upper, x; kargs...) where {F} = spgbox!(fg!, x, lower=lower, upper=upper, kargs...)
 
 """
+    spgbox(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
+    spgbox(f, g!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
 
 See `spgbox!` for additional help.
 
-```
-spgbox(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
-spgbox(f, g!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
-```
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. 
 `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. 
 

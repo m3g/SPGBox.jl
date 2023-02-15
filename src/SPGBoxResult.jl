@@ -1,7 +1,7 @@
 """
+    SPGBoxResult
 
-`SPGBoxResult`: Data structure that contains the results of the `spgbox` 
-optimization method. 
+Data structure that contains the results of the `spgbox` optimization method. 
 
   `x`: Array containing final point (solution or best point found).
  

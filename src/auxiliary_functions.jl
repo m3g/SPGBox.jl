@@ -38,23 +38,23 @@ pr_gradnorm(g, x, lower::Nothing, upper::Nothing) = maximum(abs, g)
 #
 # Compute a trial point
 #
-function compute_xn!(xn,x,t,g,lower,upper)
+function compute_xn!(xn, x, t, g, lower, upper)
     for i in eachindex(x)
         xn[i] = x[i] - t * g[i]
         xn[i] = max(xn[i], lower[i])
         xn[i] = min(xn[i], upper[i])
     end
 end
-function compute_xn!(xn,x,t,g,lower,upper::Nothing)
+function compute_xn!(xn, x, t, g, lower, upper::Nothing)
     for i in eachindex(x)
         xn[i] = x[i] - t * g[i]
         xn[i] = max(xn[i], lower[i])
     end
 end
-function compute_xn!(xn,x,t,g,lower::Nothing,upper)
+function compute_xn!(xn, x, t, g, lower::Nothing, upper)
     for i in eachindex(x)
         xn[i] = x[i] - t * g[i]
         xn[i] = min(xn[i], upper[i])
     end
 end
-compute_xn!(xn,x,t,g,lower::Nothing,upper::Nothing) = @. xn = x - t * g
+compute_xn!(xn, x, t, g, lower::Nothing, upper::Nothing) = @. xn = x - t * g
