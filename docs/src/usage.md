@@ -2,7 +2,7 @@
 
 ## Definition of the objective function and gradient functions
 
-A function must be defined receiving as argument the current point as a vector: 
+The objective function is assumed to be convex and differentiable at its minima. The function must be defined receiving as argument the current point as a vector: 
 
 ```julia-repl
 julia> f(x) = x[1]^2 + (x[2]-2)^2
