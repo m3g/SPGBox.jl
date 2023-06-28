@@ -129,7 +129,8 @@ function spgbox!(
     m::Int=10,
     vaux::VAux=VAux(x, (isnothing(func_only) ? fg!(similar(x), x) : func_only(x)), m=m),
     iprint::Int=0,
-    project_x0::Bool=true
+    project_x0::Bool=true,
+    step_nc=100
 ) where {T}
     # Adimentional variation of T (base Number type)
     adT = typeof(one(T))
@@ -234,7 +235,7 @@ function spgbox!(
             den = den + (xn[i] - x[i]) * (gn[i] - g[i]) / oneunit(T)
         end
         if den <= zero(T)
-            tspg = adT(100)
+            tspg = adT(step_nc)
         else
             tspg = max(min(adT(1.0e30), num / den), adT(1.0e-30))
         end
