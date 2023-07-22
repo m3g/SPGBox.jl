@@ -122,8 +122,8 @@ function spgbox!(
             g!(g, x)
             return f(x)
         end, 
-        x, f, callback;
-        kargs...
+        x, callback; 
+        func_only=f, kargs...
     )
 end
 
