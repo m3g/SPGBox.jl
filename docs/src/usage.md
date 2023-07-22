@@ -29,6 +29,8 @@ The solver function is `spgbox!`, which mutates the input value of `x` (with the
 
 The solver calls have a minimal calling syntax of
 ```julia-repl
+julia> using SPGBox
+
 julia> x = rand(2);
 
 julia> R = spgbox(f,g!,x)
@@ -38,19 +40,18 @@ The results will be returned to the data structure `R` of type
 `SPGBoxResult`, and will be output as: 
 
 ```julia-repl
-julia> R = spgbox(f,g!,x)
+julia> R = spgbox(f,g!,x,lower=[-Inf,5])
 
  SPGBOX RESULT: 
 
- Convergence achieved. 
+ Convergence achieved. (Return from callback: false). 
 
- Final objective function value = 0.0
- Sample of best point = Vector{Float64}[ 0.0, 2.0]
+ Final objective function value = 9.0
+ Sample of best point = Vector{Float64}[ 0.0, 5.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 2
+ Number of iterations = 3
  Number of function evaluations = 3
-
 ```
 
 ## Calling the solver, with box bounds
@@ -62,13 +63,15 @@ function and gradient functions defined in the example above, a lower
 bound will be set for the second variable:
 
 ```julia-repl
+julia> using SPGBox
+
 julia> x = rand(2);
 
 julia> R = spgbox(f,g!,x,lower=[-Inf,5])
 
  SPGBOX RESULT: 
 
- Convergence achieved. 
+ Convergence achieved. (Return from callback: false). 
 
  Final objective function value = 9.0
  Sample of best point = Vector{Float64}[ 0.0, 5.0]
@@ -76,7 +79,6 @@ julia> R = spgbox(f,g!,x,lower=[-Inf,5])
 
  Number of iterations = 3
  Number of function evaluations = 3
-
 ```
 
 Upper bounds can be similarly set with `upper=[+Inf,-5]`, for example.
@@ -101,6 +103,7 @@ struct SPGBoxResult
     nit :: Int64
     nfeval :: Int64
     ierr :: Int64
+    return_from_callback::Bool
 end
 ```
 
@@ -121,6 +124,8 @@ The data structure contains:
 | `nit`            | Number of iterations performed. | 
 | `nfeval`         | Number of function evaluations. |
 | `ierr`           | Exit status.  |
+| `return_from_callback`           | Boolan that states if the return was defined by the callback function.  |
+| | |
 
 The possible outcomes of `ierr` are:
 
@@ -129,15 +134,52 @@ The possible outcomes of `ierr` are:
 | `ierr=0`           | Success: convergence achieved. |
 | `ierr=1`           | Maximum number of iterations achieved. |
 | `ierr=2`           | Maximum number of function evaluations achieved.  |
+| | |
 
 The convergence criteria can be adjusted using optional keywords, as
 described in the [Options](@ref Options) section.
 
-## Data-dependent function evaluation
+## Optional callback function 
 
-If the function requires additional parameters, two strategies are
-possible while preserving performance: 1) Declare the parameters as constants
-and define an extra method, or 2) Pass the function as an anonymous closure. 
+It is possible to pass an optional `callback` function parameter to the `spgbox` and `spgbox!` functions.
+The `callback` function must:
+
+1. Receive as argument a `SPGBoxResult` data structure.
+2. Return `true` or `false` to define if the algorithm must return immediately or continue.
+
+For example, here we stop the optimization when the sum of two variables becomes smaller
+than `5.0`.
+
+```julia-repl
+julia> using SPGBox
+
+julia> f(x) = x[1]^4 + (x[2] - 1)^4
+f (generic function with 1 method)
+
+julia> function g!(g, x)
+           g[1] = 4 * x[1]^3
+           g[2] = 4 * (x[2] - 1)^3
+        end
+g! (generic function with 1 method)
+
+julia> x = [10.0, 18.0];
+
+julia> my_callback(R::SPGBoxResult) = R.x[1] + R.x[2] < 5.0 ? true : false
+my_callback (generic function with 1 method)
+
+julia> R = spgbox!(f, g!, x; callback = my_callback)
+
+ SPGBOX RESULT: 
+
+ Convergence achieved. (Return from callback: true). 
+
+ Final objective function value = 11.341529752085066
+ Sample of best point = Vector{Float64}[ 1.5429284794371168, 2.543387528602126]
+ Projected gradient norm = 14.705674573954493
+
+ Number of iterations = 10
+ Number of function evaluations = 10
+```
 
 ## Input data types
 
@@ -184,6 +226,12 @@ julia> spgbox(f,g!,x)
  Number of function evaluations = 3
 
 ```
+
+## Data-dependent function evaluation
+
+If the function requires additional parameters, two strategies are
+possible while preserving performance: 1) Declare the parameters as constants
+and define an extra method, or 2) Pass the function as an anonymous closure. 
 
 ### Constant parameters and new function and gradient methods 
 

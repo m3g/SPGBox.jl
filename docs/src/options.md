@@ -24,13 +24,13 @@ julia> function fg!(g,x)
        end
 fg! (generic function with 1 method)
 
-julia> x = rand(3);
+julia> x = [10.0, 11.0, 12.0];
 
 julia> spgbox(fg!,x)
 
  SPGBOX RESULT: 
 
- Convergence achieved. 
+ Convergence achieved. (Return from callback: false). 
 
  Final objective function value = 0.0
  Sample of best point = Vector{Float64}[ 1.0, 2.0, 3.0]
@@ -38,7 +38,6 @@ julia> spgbox(fg!,x)
 
  Number of iterations = 3
  Number of function evaluations = 3
-
 ```
 
 ## Convergence criteria
@@ -51,7 +50,6 @@ These keywords provided to `spgbox!` with, for example:
 
 ```julia-repl
 julia> R = spgbox!(f,g!,x,nitmax=1000)
-
 ```
 
 where `nitmax`, in this case, is the maximum number of iterations.
@@ -64,6 +62,7 @@ The available keywords are:
 | `nfevalmax`   | `Integer` | Maximum number of function evaluations allowed. | `1000` |
 | `eps`         | `eltype(x)` | Convergence criteria for the projected gradient norm. | `1e-5` |
 | `m`           | `Integer` | Number of non-monotone search steps.  | `10` |
+|    |  | |  |
 
 ## Memory preallocation
 
@@ -167,6 +166,10 @@ Additional keywords available:
 |:-------------:|:-------------:|:-------------:|:--------------:|
 | `iprint`      | `Integer` | Printing details (0, 1, or 2) | `0` |
 | `project_x0`  | `Bool` | Projects, or not, the initial point on the bounds. | `true` |
+| `callback`  | `Function` | Callback function  | `(::SPGBoxResult) -> false` |
+| `lower`  | `AbstractVecOrMat` | Array of lower bounds  | `nothing` |
+| `upper`  | `AbstractVecOrMat` | Array of upper bounds  | `nothing` |
+|          |             |                        |           | 
 
 
 
