@@ -113,8 +113,8 @@ julia> spgbox(fg!,x)
 function spgbox!(
     f::F, 
     g!::G, 
-    x::AbstractVecOrMat{T},
-    callback::H=_callback;
+    x::AbstractVecOrMat{T};
+    callback::H=_callback,
     kargs...
 ) where {F<:Function,G<:Function,H<:Function,T}
     spgbox!(
@@ -122,8 +122,8 @@ function spgbox!(
             g!(g, x)
             return f(x)
         end, 
-        x, callback; 
-        func_only=f, kargs...
+        x; 
+        callback=callback, func_only=f, kargs...
     )
 end
 
@@ -132,8 +132,8 @@ end
 #
 function spgbox!(
     fg!::Function,
-    x::AbstractVecOrMat{T},
-    callback::H=_callback;
+    x::AbstractVecOrMat{T};
+    callback::H=_callback,
     func_only=nothing,
     lower::Union{Nothing,AbstractVecOrMat{T}}=nothing,
     upper::Union{Nothing,AbstractVecOrMat{T}}=nothing,
@@ -362,7 +362,7 @@ function safequad_ls(
 end
 
 """
-    spgbox(f, g!, x::AbstractVecOrMat, [callback]; lower=..., upper=..., [callback]; options...)`
+    spgbox(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
 
 See `spgbox!` for additional help.
 
@@ -381,14 +381,14 @@ These functions *do not* mutate the `x` vector, instead it will create a (deep)c
 
 """
 function spgbox(
-    f::F, g!::G, x::AbstractVecOrMat{T}, callback::H=_callback; 
-    kargs...
+    f::F, g!::G, x::AbstractVecOrMat{T}; 
+    callback::H=_callback,  kargs...
 ) where {F<:Function,G<:Function,H<:Function,T}
     x0 = deepcopy(x)
-    return spgbox!(f, g!, x0, callback; kargs...)
+    return spgbox!(f, g!, x0; callback=callback, kargs...)
 end
 # With a single function to compute the function and the gradient
-function spgbox(fg::FG, x::AbstractVecOrMat{T}, callback::H=_callback; kargs...) where {FG<:Function,H<:Function,T}
+function spgbox(fg::FG, x::AbstractVecOrMat{T}; callback::H=_callback, kargs...) where {FG<:Function,H<:Function,T}
     x0 = deepcopy(x)
-    return spgbox!(fg, x0, callback; kargs...)
+    return spgbox!(fg, x0; callback=callback, kargs...)
 end
