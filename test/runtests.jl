@@ -53,18 +53,7 @@ using ReverseDiff
     @test R.f ≈ 5.0
     @test R.x ≈ [-2.0, 2.0]
 
-    x = [10.0, 18.0]
-    R = spgbox!(f, g!, [-Inf, -2.0], [+Inf, 2], x)
-    @test R.f ≈ 0.0
-    @test R.x ≈ [0.0, 1.0]
-
     # Test the mutating call  
-    x = [10.0, 18.0]
-    R = spgbox(f, g!, [-Inf, -2.0], [+Inf, 2], x)
-    @test x == [10.0, 18.0]
-    @test R.f ≈ 0.0
-    @test R.x ≈ [0.0, 1.0]
-
     x = [10.0, 18.0]
     R = spgbox(f, g!, x, lower=[-Inf, -2.0], upper=[+Inf, 2])
     @test x == [10.0, 18.0]
@@ -118,7 +107,6 @@ using ReverseDiff
     #
     # With a single function to compute function and gradient
     #
-
     function fg!(g, x)
         g[1] = 2 * x[1]
         g[2] = 2 * (x[2] - 1)
@@ -146,7 +134,6 @@ using ReverseDiff
     @test R.f ≈ 5.0
     @test R.x ≈ [-2.0, 2.0]
 
-
     #
     # An example that verify that the line search was fixed
     #
@@ -161,5 +148,12 @@ using ReverseDiff
     g = similar(x0)
     gH368!(g, R.x)
     @test SPGBox.pr_gradnorm(g, R.x, lower, upper) <= 1.0e-5
+
+    # Test return from callback
+    x = [10.0, 18.0]
+    R = spgbox!(f, g!, x; callback = (R) -> R.nit <= 1 ? false : true)
+    @test R.f ≈ 388.99999931805274
+    @test R.nit == 2
+    @test R.x ≈ [9.999999991234612, 17.99999998509884]
 
 end
