@@ -3,23 +3,25 @@
 
 Data structure that contains the results of the `spgbox` optimization method. 
 
-  `x`: Array containing final point (solution or best point found).
+    `x`: Array containing final point (solution or best point found).
  
-  `f`: Final objective function value.
+    `f`: Final objective function value.
 
-  `gnorm`: Norm of the projected gradient on the bounds.
+    `gnorm`: Norm of the projected gradient on the bounds.
 
-  `nit`: Number of iterations performed. 
+    `nit`: Number of iterations performed. 
 
-  `nfeval`: Number of function evaluations.
+    `nfeval`: Number of function evaluations.
 
-  `ierr`: Status of execution: 
+    `ierr`: Status of execution: 
 
          0. Converged successfully to solution. 
 
          1. Maximum number of iterations achieved.
 
          2. Maximum number of function evaluations achieved.
+
+    `return_from_callback`: Boolean indicating if the algorithm returned from the callback function.
 
 """
 struct SPGBoxResult{T,F,G}
@@ -36,7 +38,7 @@ function Base.show(io::IO, R::SPGBoxResult)
     println("")
     println(" SPGBOX RESULT: ")
     println("")
-    R.ierr == 0 && println(" Convergence achieved (Return from callback: $return_from_callback). ")
+    R.ierr == 0 && println(" Convergence achieved. (Return from callback: $(R.return_from_callback)). ")
     R.ierr == 1 && println(" Maximum number of iterations (nitmax) reached.")
     R.ierr == 2 && println(" Maximum number of function evaluations (nfevalmax) reached.")
     println("")
@@ -52,5 +54,5 @@ function Base.show(io::IO, R::SPGBoxResult)
     println(" Projected gradient norm = ", R.gnorm)
     println("")
     println(" Number of iterations = ", R.nit)
-    println(" Number of function evaluations = ", R.nfeval)
+    print(" Number of function evaluations = ", R.nfeval)
 end
