@@ -1,3 +1,6 @@
+# Default callback function
+_callback(spgdata::SPGBoxResult) = false
+
 #
 # Algorithm of:
 #
@@ -107,11 +110,21 @@ julia> spgbox(fg!,x)
 ```
 
 """
-function spgbox!(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T}
-    spgbox!((g, x) -> begin
+function spgbox!(
+    f::F, 
+    g!::G, 
+    x::AbstractVecOrMat{T},
+    callback::H=_callback;
+    kargs...
+) where {F<:Function,G<:Function,H<:Function,T}
+    spgbox!(
+        (g, x) -> begin
             g!(g, x)
             return f(x)
-        end, x, f; kargs...)
+        end, 
+        x, f, callback;
+        kargs...
+    )
 end
 
 #
@@ -120,7 +133,8 @@ end
 function spgbox!(
     fg!::Function,
     x::AbstractVecOrMat{T},
-    func_only=nothing;
+    callback::H=_callback;
+    func_only=nothing,
     lower::Union{Nothing,AbstractVecOrMat{T}}=nothing,
     upper::Union{Nothing,AbstractVecOrMat{T}}=nothing,
     eps=oneunit(T) / 100_000,
@@ -131,7 +145,7 @@ function spgbox!(
     iprint::Int=0,
     project_x0::Bool=true,
     step_nc=100
-) where {T}
+) where {H<:Function,T}
     # Adimentional variation of T (base Number type)
     adT = typeof(one(T))
 
@@ -252,6 +266,14 @@ function spgbox!(
 
         # Compute projected gradient norm
         gnorm = pr_gradnorm(g, x, lower, upper)
+
+        # Call callback function
+        return_from_callback = callback(SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0))
+        if return_from_callback
+            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
+        end
+
+        # Check convergence
         gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
     end
 
@@ -339,28 +361,17 @@ function safequad_ls(
     return nfeval, fn
 end
 
-
-#
-# Call with lower and upper as positional arguments
-#
-spgbox!(f::F, g!::G, lower, upper, x; kargs...) where {F,G} = spgbox!(f, g!, x, lower=lower, upper=upper, kargs...)
-spgbox!(fg!::F, lower, upper, x; kargs...) where {F} = spgbox!(fg!, x, lower=lower, upper=upper, kargs...)
-
 """
-    spgbox(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
-    spgbox(f, g!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
+    spgbox(f, g!, x::AbstractVecOrMat, [callback]; lower=..., upper=..., [callback]; options...)`
 
 See `spgbox!` for additional help.
 
 Minimizes function `f` starting from initial point `x`, given the function to compute the gradient, `g!`. 
 `f` must be of the form `f(x)`, and `g!` of the form `g!(g,x)`, where `g` is the gradient vector to be modified. 
 
-Optional lower and upper box bounds can be provided using optional arguments `lower` and `upper`, which can be provided as the fourth and fifth arguments or with keyword parameters.
+Optional lower and upper box bounds can be provided using optional keyword arguments `lower` and `upper`.
 
-```
-spgbox(fg!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
-spgbox(fg!, lower::AbstractVecOrMat, upper::AbstractVecOrMat, x::AbstractVecOrMat; options...)`
-```
+    spgbox(fg!, x::AbstractVecOrMat; lower=..., upper=..., options...)`
 
 Given a single function `fg!(g,x)` that updates a gradient vector `g` and returns the function value, minimizes the function.  
 
@@ -369,24 +380,15 @@ These functions return a structure of type `SPGBoxResult`, containing the best s
 These functions *do not* mutate the `x` vector, instead it will create a (deep)copy of it (see `spgbox!` for the in-place alternative). 
 
 """
-function spgbox(f::F, g!::G, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T}
+function spgbox(
+    f::F, g!::G, x::AbstractVecOrMat{T}, callback::H=_callback; 
+    kargs...
+) where {F<:Function,G<:Function,H<:Function,T}
     x0 = deepcopy(x)
-    return spgbox!(f, g!, x0; kargs...)
+    return spgbox!(f, g!, x0, callback; kargs...)
 end
 # With a single function to compute the function and the gradient
-function spgbox(fg::FG, x::AbstractVecOrMat{T}; kargs...) where {FG<:Function,T}
+function spgbox(fg::FG, x::AbstractVecOrMat{T}, callback::H=_callback; kargs...) where {FG<:Function,H<:Function,T}
     x0 = deepcopy(x)
-    return spgbox!(fg, x0; kargs...)
-end
-#
-# call with lower and upper as positional arguments
-#
-function spgbox(f::F, g!::G, lower, upper, x::AbstractVecOrMat{T}; kargs...) where {F<:Function,G<:Function,T}
-    x0 = deepcopy(x)
-    return spgbox!(f, g!, lower, upper, x0; kargs...)
-end
-# With a single function to compute the function and the gradient
-function spgbox(fg::FG, lower, upper, x::AbstractVecOrMat{T}; kargs...) where {FG<:Function,T}
-    x0 = deepcopy(x)
-    return spgbox!(fg, lower, upper, x0; kargs...)
+    return spgbox!(fg, x0, callback; kargs...)
 end
