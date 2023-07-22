@@ -199,7 +199,7 @@ function spgbox!(
     nfeval = 1
     fcurrent = fg!(g, x)
     gnorm = pr_gradnorm(g, x, lower, upper)
-    gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
+    gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0, false)
 
     # Do a consertive initial step
     small = T(sqrt(Base.eps(T)))
@@ -236,7 +236,7 @@ function spgbox!(
             safequad_ls(xn, gn, x, g, fcurrent, tspg, fref, nfevalmax - nfeval, iprint, func_only, fg!, lower, upper)
 
         if lsfeval < 0
-            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval - lsfeval, 2)
+            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval - lsfeval, 2, false)
         else
             nfeval += lsfeval
         end
@@ -268,17 +268,17 @@ function spgbox!(
         gnorm = pr_gradnorm(g, x, lower, upper)
 
         # Call callback function
-        return_from_callback = callback(SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0))
+        return_from_callback = callback(SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0, false))
         if return_from_callback
-            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
+            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0, true)
         end
 
         # Check convergence
-        gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0)
+        gnorm <= eps && return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0, false)
     end
 
     # Maximum number of iterations achieved
-    return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 1)
+    return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 1, false)
 end
 
 "Perform a safeguarded quadratic line search"

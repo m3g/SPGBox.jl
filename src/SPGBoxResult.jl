@@ -29,13 +29,14 @@ struct SPGBoxResult{T,F,G}
     nit::Int64
     nfeval::Int64
     ierr::Int64
+    return_from_callback::Bool
 end
 
 function Base.show(io::IO, R::SPGBoxResult)
     println("")
     println(" SPGBOX RESULT: ")
     println("")
-    R.ierr == 0 && println(" Convergence achieved. ")
+    R.ierr == 0 && println(" Convergence achieved (Return from callback: $return_from_callback). ")
     R.ierr == 1 && println(" Maximum number of iterations (nitmax) reached.")
     R.ierr == 2 && println(" Maximum number of function evaluations (nfevalmax) reached.")
     println("")
