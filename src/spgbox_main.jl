@@ -103,6 +103,13 @@ julia> spgbox(fg!,x)
 ```
 
 """
+function spgbbox! end
+
+#
+# This method converts a call that provides explicit function and gradient functions,
+# to a call where the same function computes the function and the gradient. The `func_only`
+# parameter assumes the value of the objective function to compute the output type
+#
 function spgbox!(
     f::F, 
     g!::G, 
@@ -150,36 +157,36 @@ function spgbox!(
     xn = vaux.xn
     gn = vaux.gn
     fprev = vaux.fprev
-    @assert length(g) == n "Auxiliar gradient vector `g` must be of the same length as `x`"
-    @assert length(xn) == n "Auxiliar vector `xn` must be of the same length as `x`"
-    @assert length(gn) == n "Auxiliar vector `gn` must be of the same length as `x`"
-    @assert length(fprev) == m "Auxiliar vector `fprev` must be of length `m`"
+    length(g) == n || throw(DimensionMismatch("Auxiliar gradient vector `g` must be of the same length as `x`"))
+    length(xn) == n || throw(DimensionMismatch("Auxiliar vector `xn` must be of the same length as `x`"))
+    length(gn) == n || throw(DimensionMismatch("Auxiliar vector `gn` must be of the same length as `x`"))
+    length(fprev) == m || throw(DimensionMismatch("Auxiliar vector `fprev` must be of length `m`"))
 
     # Check if bounds are defined, project or not the initial point on them
     if !isnothing(lower)
-        @assert length(lower) == n "Lower bound vector `lower` must be of the same length than x, got: $(length(lower))"
+        length(lower) == n || throw(DimensionMismatch("Lower bound vector `lower` must be of the same length than x, got: $(length(lower))"))
         if project_x0
             @. x = max(x, lower)
         else
             for i in eachindex(x,lower)
                 if x[i] < lower[i]
-                    error(
+                    throw(ArgumentError(
                         " Initial value of variable $i smaller than lower bound, and `project_x0` is set to `false`. ",
-                    )
+                    ))
                 end
             end
         end
     end
     if !isnothing(upper)
-        @assert length(upper) == n "Upper bound vector `upper` must be of the same length than `x`, got: $(length(upper))"
+        length(upper) == n || throw(DimensionMismatch("Upper bound vector `upper` must be of the same length than `x`, got: $(length(upper))"))
         if project_x0
             @. x = min(x, upper)
         else
             for i in eachindex(x,upper)
                 if x[i] > lower[i]
-                    error(
+                    throw(ArgumentError(
                         " Initial value of variable $i greater than upper bound, and `project_x0` is set to `false`. ",
-                    )
+                    ))
                 end
             end
         end
