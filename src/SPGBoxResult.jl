@@ -38,9 +38,13 @@ function Base.show(io::IO, R::SPGBoxResult)
     println("")
     println(" SPGBOX RESULT: ")
     println("")
-    R.ierr == 0 && println(" Convergence achieved. (Return from callback: $(R.return_from_callback)). ")
-    R.ierr == 1 && println(" Maximum number of iterations (nitmax) reached.")
-    R.ierr == 2 && println(" Maximum number of function evaluations (nfevalmax) reached.")
+    if R.return_from_callback
+        println(" Returned from callback function. ")
+    else
+        R.ierr == 0 && println(" Convergence achieved. ")
+        R.ierr == 1 && println(" Maximum number of iterations (nitmax) reached.")
+        R.ierr == 2 && println(" Maximum number of function evaluations (nfevalmax) reached.")
+    end
     println("")
     println(" Final objective function value = ", R.f)
     print(" Sample of best point = $(typeof(R.x))[ ")
