@@ -44,7 +44,7 @@ julia> R = spgbox(f,g!,x,lower=[-Inf,5])
 
  SPGBOX RESULT: 
 
- Convergence achieved. (Return from callback: false). 
+ Convergence achieved.
 
  Final objective function value = 9.0
  Sample of best point = Vector{Float64}[ 0.0, 5.0]
@@ -71,7 +71,7 @@ julia> R = spgbox(f,g!,x,lower=[-Inf,5])
 
  SPGBOX RESULT: 
 
- Convergence achieved. (Return from callback: false). 
+ Convergence achieved.
 
  Final objective function value = 9.0
  Sample of best point = Vector{Float64}[ 0.0, 5.0]
@@ -171,7 +171,7 @@ julia> R = spgbox!(f, g!, x; callback = my_callback)
 
  SPGBOX RESULT: 
 
- Convergence achieved. (Return from callback: true). 
+ Returned from callback function.
 
  Final objective function value = 11.341529752085066
  Sample of best point = Vector{Float64}[ 1.5429284794371168, 2.543387528602126]
