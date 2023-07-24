@@ -166,7 +166,7 @@ Additional keywords available:
 |:-------------:|:-------------:|:-------------:|:--------------:|
 | `iprint`      | `Integer` | Printing details (0, 1, or 2) | `0` |
 | `project_x0`  | `Bool` | Projects, or not, the initial point on the bounds. | `true` |
-| `callback`  | `Function` | Callback function  | `(::SPGBoxResult) -> false` |
+| `callback`  | `Union{<:Function,Nothing}` | Callback function  | `nothing` |
 | `lower`  | `AbstractVecOrMat` | Array of lower bounds  | `nothing` |
 | `upper`  | `AbstractVecOrMat` | Array of upper bounds  | `nothing` |
 |          |             |                        |           | 

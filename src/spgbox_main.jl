@@ -1,6 +1,3 @@
-# Default callback function
-_callback(spgdata::SPGBoxResult) = false
-
 #
 # Algorithm of:
 #
@@ -114,7 +111,7 @@ function spgbox!(
     f::F, 
     g!::G, 
     x::AbstractVecOrMat{T};
-    callback::H=_callback,
+    callback::Union{H,Nothing}=nothing,
     kargs...
 ) where {F<:Function,G<:Function,H<:Function,T}
     spgbox!(
@@ -133,7 +130,7 @@ end
 function spgbox!(
     fg!::Function,
     x::AbstractVecOrMat{T};
-    callback::H=_callback,
+    callback::Union{H,Nothing}=nothing,
     func_only=nothing,
     lower::Union{Nothing,AbstractVecOrMat{T}}=nothing,
     upper::Union{Nothing,AbstractVecOrMat{T}}=nothing,
@@ -268,9 +265,10 @@ function spgbox!(
         gnorm = pr_gradnorm(g, x, lower, upper)
 
         # Call callback function
-        return_from_callback = callback(SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0, false))
-        if return_from_callback
-            return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0, true)
+        if !isnothing(callback)
+            if callback(SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0, false))
+                return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 0, true)
+            end
         end
 
         # Check convergence
@@ -382,13 +380,13 @@ These functions *do not* mutate the `x` vector, instead it will create a (deep)c
 """
 function spgbox(
     f::F, g!::G, x::AbstractVecOrMat{T}; 
-    callback::H=_callback,  kargs...
+    callback::Union{H,Nothing}=nothing,  kargs...
 ) where {F<:Function,G<:Function,H<:Function,T}
     x0 = deepcopy(x)
     return spgbox!(f, g!, x0; callback=callback, kargs...)
 end
 # With a single function to compute the function and the gradient
-function spgbox(fg::FG, x::AbstractVecOrMat{T}; callback::H=_callback, kargs...) where {FG<:Function,H<:Function,T}
+function spgbox(fg::FG, x::AbstractVecOrMat{T}; callback::Union{H,Nothing}=nothing, kargs...) where {FG<:Function,H<:Function,T}
     x0 = deepcopy(x)
     return spgbox!(fg, x0; callback=callback, kargs...)
 end
