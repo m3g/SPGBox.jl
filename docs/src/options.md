@@ -30,7 +30,7 @@ julia> spgbox(fg!,x)
 
  SPGBOX RESULT: 
 
- Convergence achieved. (Return from callback: false). 
+ Convergence achieved.
 
  Final objective function value = 0.0
  Sample of best point = Vector{Float64}[ 1.0, 2.0, 3.0]
