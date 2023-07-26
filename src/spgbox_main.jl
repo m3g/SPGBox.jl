@@ -108,8 +108,8 @@ function spgbbox! end
 # parameter assumes the value of the objective function to compute the output type
 #
 function spgbox!(
-    f::F, 
-    g!::G, 
+    f::F,
+    g!::G,
     x::AbstractVecOrMat{T};
     callback::Union{H,Nothing}=nothing,
     kargs...
@@ -118,8 +118,8 @@ function spgbox!(
         (g, x) -> begin
             g!(g, x)
             return f(x)
-        end, 
-        x; 
+        end,
+        x;
         callback=callback, func_only=f, kargs...
     )
 end
@@ -165,7 +165,7 @@ function spgbox!(
         if project_x0
             @. x = max(x, lower)
         else
-            for i in eachindex(x,lower)
+            for i in eachindex(x, lower)
                 if x[i] < lower[i]
                     throw(ArgumentError(
                         " Initial value of variable $i smaller than lower bound, and `project_x0` is set to `false`. ",
@@ -179,7 +179,7 @@ function spgbox!(
         if project_x0
             @. x = min(x, upper)
         else
-            for i in eachindex(x,upper)
+            for i in eachindex(x, upper)
                 if x[i] > lower[i]
                     throw(ArgumentError(
                         " Initial value of variable $i greater than upper bound, and `project_x0` is set to `false`. ",
@@ -241,7 +241,7 @@ function spgbox!(
         # Trial point accepted
         num = zero(T)
         den = zero(T)
-        for i in eachindex(x)
+        for i in eachindex(xn, x, gn, g)
             num = num + (xn[i] - x[i])^2 / oneunit(T)
             den = den + (xn[i] - x[i]) * (gn[i] - g[i]) / oneunit(T)
         end
@@ -251,7 +251,7 @@ function spgbox!(
             tspg = max(min(adT(1.0e30), num / den), adT(1.0e-30))
         end
         fcurrent = fn
-        for i in eachindex(x)
+        for i in eachindex(x, xn, g, gn)
             x[i] = xn[i]
             g[i] = gn[i]
         end
@@ -300,7 +300,7 @@ function safequad_ls(
     gamma = one_T / 10_000
 
     gtd = zero(fref)
-    for i in eachindex(x)
+    for i in eachindex(xn, x, g)
         gtd += (xn[i] - x[i]) * g[i]
     end
 
@@ -316,7 +316,7 @@ function safequad_ls(
             # Compute a new trial point and its function values
             compute_xn!(xn, x, alpha * tspg, g, lower, upper)
             gtd = zero(T)
-            for i in eachindex(x)
+            for i in eachindex(xn, x, g)
                 gtd += (xn[i] - x[i]) * g[i]
             end
             if iprint > 2
@@ -379,14 +379,16 @@ These functions *do not* mutate the `x` vector, instead it will create a (deep)c
 
 """
 function spgbox(
-    f::F, g!::G, x::AbstractVecOrMat{T}; 
-    callback::Union{H,Nothing}=nothing,  kargs...
+    f::F, g!::G, x::AbstractVecOrMat{T};
+    callback::Union{H,Nothing}=nothing, kargs...
 ) where {F<:Function,G<:Function,H<:Function,T}
-    x0 = deepcopy(x)
+    x0 = copy(x)
     return spgbox!(f, g!, x0; callback=callback, kargs...)
 end
 # With a single function to compute the function and the gradient
-function spgbox(fg::FG, x::AbstractVecOrMat{T}; callback::Union{H,Nothing}=nothing, kargs...) where {FG<:Function,H<:Function,T}
-    x0 = deepcopy(x)
+function spgbox(fg::FG, x::AbstractVecOrMat{T};
+    callback::Union{H,Nothing}=nothing, kargs...
+) where {FG<:Function,H<:Function,T}
+    x0 = copy(x)
     return spgbox!(fg, x0; callback=callback, kargs...)
 end
