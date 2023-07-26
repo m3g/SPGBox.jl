@@ -111,9 +111,9 @@ function spgbox!(
     f::F,
     g!::G,
     x::AbstractVecOrMat{T};
-    callback::Union{H,Nothing}=nothing,
+    callback::H=nothing,
     kargs...
-) where {F<:Function,G<:Function,H<:Function,T}
+) where {F<:Function,G<:Function,H<:Union{<:Function,Nothing},T}
     spgbox!(
         (g, x) -> begin
             g!(g, x)
@@ -128,12 +128,12 @@ end
 # Call with a single function to compute the function and the gradient
 #
 function spgbox!(
-    fg!::Function,
+    fg!::FG,
     x::AbstractVecOrMat{T};
-    callback::Union{H,Nothing}=nothing,
-    func_only=nothing,
-    lower::Union{Nothing,AbstractVecOrMat{T}}=nothing,
-    upper::Union{Nothing,AbstractVecOrMat{T}}=nothing,
+    callback::H=nothing,
+    func_only::FO=nothing,
+    lower::LB=nothing,
+    upper::UB=nothing,
     eps=oneunit(T) / 100_000,
     nitmax::Int=100,
     nfevalmax::Int=1000,
@@ -142,7 +142,13 @@ function spgbox!(
     iprint::Int=0,
     project_x0::Bool=true,
     step_nc=100
-) where {H<:Function,T}
+) where {
+    FG<:Function,
+    LB<:Union{Nothing,AbstractVecOrMat{T}},
+    UB<:Union{Nothing,AbstractVecOrMat{T}},
+    FO<:Union{<:Function,Nothing},
+    H<:Union{<:Function,Nothing},
+} where {T}
     # Adimentional variation of T (base Number type)
     adT = typeof(one(T))
 
@@ -380,15 +386,15 @@ These functions *do not* mutate the `x` vector, instead it will create a (deep)c
 """
 function spgbox(
     f::F, g!::G, x::AbstractVecOrMat{T};
-    callback::Union{H,Nothing}=nothing, kargs...
-) where {F<:Function,G<:Function,H<:Function,T}
+    callback::H=nothing, kargs...
+) where {F<:Function,G<:Function,H<:Union{<:Function,Nothing},T}
     x0 = copy(x)
     return spgbox!(f, g!, x0; callback=callback, kargs...)
 end
 # With a single function to compute the function and the gradient
 function spgbox(fg::FG, x::AbstractVecOrMat{T};
-    callback::Union{H,Nothing}=nothing, kargs...
-) where {FG<:Function,H<:Function,T}
+    callback::H=nothing, kargs...
+) where {FG<:Function,H<:Union{<:Function,Nothing},T}
     x0 = copy(x)
     return spgbox!(fg, x0; callback=callback, kargs...)
 end
