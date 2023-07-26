@@ -1,6 +1,6 @@
-# SPGBox
+# SPGBox.jl
 
-SPGBox is a pure-Julia implementation of the Spectral Projected Gradient Method 
+[SPGBox.jl](https://github.com/m3g/SPGBox.jl) is a pure-Julia implementation of the Spectral Projected Gradient Method 
 for minimization in box constraints, as described in: 
 
 E. G. Birgin, J. M. Martínez and M. Raydan, "Nonmonotone spectral

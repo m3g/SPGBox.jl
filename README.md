@@ -2,7 +2,7 @@
 [![Tests](https://img.shields.io/badge/build-passing-green)](https://github.com/m3g/SPGBox.jl/actions)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
-# SPGBox
+# SPGBox.jl
 
 Implements the Spectral Projected Gradient Method for minimization 
 with box constraints. 
