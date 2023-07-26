@@ -6,7 +6,7 @@
 # SIAM J. O. PTIM. Vol. 10, No. 4, pp. 1196-1211
 #
 # Implemented by J. M. Martínez (IMECC - UNICAMP)
-# Iinitally translated and adapted to Julia by L. Martínez (IQ-UNICAMP)
+# Initially translated and adapted to Julia by L. Martínez (IQ-UNICAMP)
 #
 """
     spgbox!(f, g!, x::AbstractVecOrMat; lower=..., upper=..., options...)
