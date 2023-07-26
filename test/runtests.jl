@@ -1,9 +1,14 @@
-using Test
-using SPGBox
-using Unitful
-using ReverseDiff
+using TestItemRunner
+@run_package_tests
 
-@testset "simple quadratic" begin
+@testitem "Aqua.test_all" begin
+    import Aqua
+    Aqua.test_all(SPGBox)
+end
+
+@testitem "simple quadratic" begin
+    using Unitful
+    using ReverseDiff
 
     f(x) = x[1]^2 + (x[2] - 1)^2
 
