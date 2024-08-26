@@ -1,3 +1,7 @@
+```@meta
+CollapsedDocStrings = true
+```
+
 # [Options](@id Options)
 
 Several keyword parameters can be used to adjust the convergence
@@ -72,8 +76,13 @@ and a vector of length equal to
 the number of non-monotone steps allowed, `fprev`, of dimension, `m` 
 (see [below](@ref fprev)). 
 
-These vectors are allocated in the `SPGBox.VAux` data structure. For
-preallocating the auxiliary vectors, initialize this data structure
+These vectors are allocated in the `SPGBox.VAux` data structure. 
+
+```@docs
+SPGBox.VAux
+```
+
+For preallocating the auxiliary vectors, initialize this data structure
 before calling `spgbox!` and pass the data structure using the
 `vaux` argument. In brief, given that the vector of variables is `x`, 
 and the function is `f(x)`, do:
