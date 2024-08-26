@@ -156,9 +156,34 @@ end
 
     # Test return from callback
     x = [10.0, 18.0]
-    R = spgbox!(f, g!, x; callback = (R) -> R.nit <= 1 ? false : true)
+    R = spgbox!(f, g!, x; callback=(R) -> R.nit <= 1 ? false : true)
     @test R.f ≈ 388.99999931805274
     @test R.nit == 2
     @test R.x ≈ [9.999999991234612, 17.99999998509884]
 
+    # Test definition of m by the user
+    f2(x) = x[1]^2 + x[2]^2 + 1
+    g2!(g, x) = g .= 2 .* x
+    x0 = [5.0, 3.0]
+    R = spgbox!(f2, g2!, x0; m = 5)
+    @test R.f ≈ 1.0
+end
+
+@testitem "VAux" begin
+    using SPGBox
+    using BenchmarkTools
+    f(x) = x[1]^2 + x[2]^2 + 1
+    g!(g, x) = g .= 2 .* x
+    x0 = [5.0, 3.0]
+    vaux = SPGBox.VAux(x0, 0.0)
+    # Test error when m and VAux are not compatible
+    R = spgbox!(f, g!, x0; m = 10, vaux=vaux)
+    @test R.f ≈ 1.0
+    @test_throws DimensionMismatch spgbox!(f, g!, x0; m = 5, vaux=vaux)
+    # Test allocations
+    a = @ballocated spgbox!($f, $g!, $x0; vaux=$vaux) setup = (samples = 1; evals = 1)
+    @test a == 0
+    vaux = SPGBox.VAux(x0, 0.0; m=10)
+    a = @ballocated spgbox!($f, $g!, $x0; vaux=$vaux) setup = (samples = 1; evals = 1)
+    @test a == 0
 end
