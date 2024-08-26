@@ -100,7 +100,7 @@ julia> spgbox(fg!,x)
 ```
 
 """
-function spgbbox! end
+function spgbox! end
 
 #
 # This method converts a call that provides explicit function and gradient functions,
@@ -137,8 +137,8 @@ function spgbox!(
     eps=oneunit(T) / 100_000,
     nitmax::Int=100,
     nfevalmax::Int=1000,
-    m::Int=10,
-    vaux::VAux=VAux(x, (isnothing(func_only) ? fg!(similar(x), x) : func_only(x)), m=m),
+    m::Union{Nothing,Int}=nothing,
+    vaux::Union{Nothing,VAux}=nothing,
     iprint::Int=0,
     project_x0::Bool=true,
     step_nc=100
@@ -155,6 +155,17 @@ function spgbox!(
     # Number of variables
     n = length(x)
 
+    # Initialize auxiliary variables if not provided
+    if isnothing(vaux)
+        m = isnothing(m) ? 10 : m
+        vaux=VAux(x, (isnothing(func_only) ? fg!(similar(x), x) : func_only(x)); m)
+    else
+        if !isnothing(m)
+            length(vaux.fprev) == m || throw(DimensionMismatch("Auxiliar vector `fprev` of VAux must be of length `m`"))
+        end
+        m = length(vaux.fprev)
+    end
+
     # Auxiliary arrays (associate names and check dimensions)
     g = vaux.g
     xn = vaux.xn
@@ -163,7 +174,6 @@ function spgbox!(
     length(g) == n || throw(DimensionMismatch("Auxiliar gradient vector `g` must be of the same length as `x`"))
     length(xn) == n || throw(DimensionMismatch("Auxiliar vector `xn` must be of the same length as `x`"))
     length(gn) == n || throw(DimensionMismatch("Auxiliar vector `gn` must be of the same length as `x`"))
-    length(fprev) == m || throw(DimensionMismatch("Auxiliar vector `fprev` must be of length `m`"))
 
     # Check if bounds are defined, project or not the initial point on them
     if !isnothing(lower)
@@ -285,7 +295,9 @@ function spgbox!(
     return SPGBoxResult(x, fcurrent, gnorm, nit, nfeval, 1, false)
 end
 
-"Perform a safeguarded quadratic line search"
+#
+# Perform a safeguarded quadratic line search"
+#
 function safequad_ls(
     xn::AbstractVecOrMat{T},
     gn::AbstractVecOrMat{T},
