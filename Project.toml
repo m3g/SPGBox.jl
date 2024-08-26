@@ -1,7 +1,7 @@
 name = "SPGBox"
 uuid = "bf97046b-3e66-4aa0-9aed-26efb7fac769"
 authors = ["Leandro Martinez <lmartine@unicamp.br> and P. J. S. Silva <pjssilva@unicamp.br>"]
-version = "0.7.2"
+version = "0.7.3-DEV"
 
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
