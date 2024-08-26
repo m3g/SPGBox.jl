@@ -10,7 +10,7 @@ TestItems = "1c621080-faea-4a02-84b6-bbd5e436b8fe"
 [compat]
 Aqua = "0.6, 0.7, 0.8"
 BenchmarkTools = "1.5.0"
-Compat = "4.16.0"
+Compat = "4.15.0"
 ReverseDiff = "1.15"
 Test = "1.6"
 TestItemRunner = "0.2"
