@@ -1,11 +1,12 @@
 module SPGBox
 
-using TestItems
-using LinearAlgebra
+using TestItems: @testitem
+using Compat: @compat
 
 export spgbox!
 export spgbox
 export SPGBoxResult
+@compat public VAux
 
 include("./SPGBoxResult.jl")
 include("./VAux.jl")
