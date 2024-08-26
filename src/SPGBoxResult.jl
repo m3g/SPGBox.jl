@@ -35,28 +35,28 @@ struct SPGBoxResult{T,F,G}
 end
 
 function Base.show(io::IO, R::SPGBoxResult)
-    println("")
-    println(" SPGBOX RESULT: ")
-    println("")
+    println(io, "")
+    println(io, " SPGBOX RESULT: ")
+    println(io, "")
     if R.return_from_callback
-        println(" Returned from callback function. ")
+        println(io, " Returned from callback function. ")
     else
-        R.ierr == 0 && println(" Convergence achieved. ")
-        R.ierr == 1 && println(" Maximum number of iterations (nitmax) reached.")
-        R.ierr == 2 && println(" Maximum number of function evaluations (nfevalmax) reached.")
+        R.ierr == 0 && println(io, " Convergence achieved. ")
+        R.ierr == 1 && println(io, " Maximum number of iterations (nitmax) reached.")
+        R.ierr == 2 && println(io, " Maximum number of function evaluations (nfevalmax) reached.")
     end
-    println("")
-    println(" Final objective function value = ", R.f)
-    print(" Sample of best point = $(typeof(R.x))[ ")
+    println(io, "")
+    println(io, " Final objective function value = ", R.f)
+    print(io, " Sample of best point = $(typeof(R.x))[ ")
     for i = 1:min(length(R.x) - 1, 3)
-        print("$(R.x[i]), ")
+        print(io, "$(R.x[i]), ")
     end
     if length(R.x) > 4
-        print("..., ")
+        print(io, "..., ")
     end
-    println(R.x[length(R.x)], "]")
-    println(" Projected gradient norm = ", R.gnorm)
-    println("")
-    println(" Number of iterations = ", R.nit)
-    print(" Number of function evaluations = ", R.nfeval)
+    println(io, R.x[length(R.x)], "]")
+    println(io, " Projected gradient norm = ", R.gnorm)
+    println(io, "")
+    println(io, " Number of iterations = ", R.nit)
+    print(io, " Number of function evaluations = ", R.nfeval)
 end
