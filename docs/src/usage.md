@@ -1,3 +1,8 @@
+```@meta
+CollapsedDocStrings = true
+```
+
+
 # User guide
 
 ## Definition of the objective function and gradient functions
@@ -52,6 +57,14 @@ julia> R = spgbox(f,g!,x,lower=[-Inf,5])
 
  Number of iterations = 3
  Number of function evaluations = 3
+```
+
+### Reference documentation:
+
+```@docs
+spgbox
+spgbox!
+SPGBoxResult
 ```
 
 ## Calling the solver, with box bounds
