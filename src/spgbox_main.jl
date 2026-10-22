@@ -139,7 +139,7 @@ function spgbox!(
     nfevalmax::Int=1000,
     m::Union{Nothing,Int}=nothing,
     vaux::Union{Nothing,VAux}=nothing,
-    iprint::Int=0,
+    iprint::Union{Nothing,Int}=nothing,
     project_x0::Bool=true,
     step_nc=100
 ) where {
@@ -226,7 +226,7 @@ function spgbox!(
 
     while nit < nitmax
 
-        if iprint > 0
+        if _iprint_gt(iprint, 0)
             println("----------------------------------------------------------- ")
             println(" Iteration: ", nit)
             println(" x = ", x[begin], " ... ", x[end])
@@ -237,7 +237,7 @@ function spgbox!(
         end
 
         fref = maximum(fprev)
-        if iprint > 2
+        if _iprint_gt(iprint, 2)
             println(" fref = ", fref)
             println(" fprev = ", fprev)
             println(" t = ", t)
@@ -307,7 +307,7 @@ function safequad_ls(
     tspg::Number,
     fref::Number,
     nfevalmax::Int,
-    iprint::Int,
+    iprint::Union{Nothing,Int},
     func_only::Union{Nothing,Function},
     fg!::Function,
     lower::Union{Nothing,AbstractVecOrMat{T}},
@@ -337,7 +337,7 @@ function safequad_ls(
             for i in eachindex(xn, x, g)
                 gtd += (xn[i] - x[i]) * g[i]
             end
-            if iprint > 2
+            if _iprint_gt(iprint, 2)
                 println(" xn = ", xn[begin], " ... ", xn[end])
                 println(" f[end] = ", fn, " fref = ", fref)
             end

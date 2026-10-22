@@ -173,7 +173,7 @@ Additional keywords available:
 
 | Keyword       | Type          |Meaning        | Default value  |
 |:-------------:|:-------------:|:-------------:|:--------------:|
-| `iprint`      | `Integer` | Printing details (0, 1, or 2) | `0` |
+| `iprint`      | `Union{Nothing,Integer}` | Printing details (0, 1, or 2). `nothing`: no printing, and the printing code is not compiled (as required by `juliac --trim`) | `nothing` |
 | `project_x0`  | `Bool` | Projects, or not, the initial point on the bounds. | `true` |
 | `callback`  | `Union{<:Function,Nothing}` | Callback function  | `nothing` |
 | `lower`  | `AbstractVecOrMat` | Array of lower bounds  | `nothing` |

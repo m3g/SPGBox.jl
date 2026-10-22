@@ -58,3 +58,11 @@ function compute_xn!(xn, x, t, g, lower::Nothing, upper)
     end
 end
 compute_xn!(xn, x, t, g, lower::Nothing, upper::Nothing) = @. xn = x - t * g
+
+#
+# Printing level check. `iprint = nothing` (the default) means no printing, and is
+# known at compile time, such that the printing code is not even compiled (as
+# required by `juliac --trim`, since printing to `stdout` is not type-stable).
+#
+_iprint_gt(::Nothing, level::Int) = false
+_iprint_gt(iprint::Int, level::Int) = iprint > level
