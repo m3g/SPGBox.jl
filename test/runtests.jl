@@ -187,3 +187,42 @@ end
     a = @ballocated spgbox!($f, $g!, $x0; vaux=$vaux) setup = (samples = 1; evals = 1)
     @test a == 0
 end
+
+@testitem "Optimization.jl interface" begin
+    using SPGBox
+    using Optimization
+    using ForwardDiff
+
+    f(x, p) = (x[1] - p[1])^2 + (x[2] - 1)^2
+    optf = OptimizationFunction(f, AutoForwardDiff())
+
+    # Unbounded
+    prob = OptimizationProblem(optf, [10.0, 18.0], [3.0])
+    sol = solve(prob, SPGBoxOpt())
+    @test sol.u ≈ [3.0, 1.0]
+    @test sol.objective ≈ 0.0 atol = 1e-8
+    @test sol.retcode == ReturnCode.Success
+    @test prob.u0 == [10.0, 18.0]
+
+    # Bounded, and options passed to spgbox
+    prob = OptimizationProblem(optf, [10.0, 18.0], [0.0]; lb=[2.0, -Inf], ub=[Inf, Inf])
+    sol = solve(prob, SPGBoxOpt(eps=1e-8))
+    @test sol.u ≈ [2.0, 1.0]
+    @test sol.objective ≈ 4.0
+
+    # Maximization
+    optf_max = OptimizationFunction((x, p) -> -f(x, p), AutoForwardDiff())
+    prob = OptimizationProblem(optf_max, [10.0, 18.0], [3.0]; sense=Optimization.MaxSense)
+    @test solve(prob, SPGBoxOpt()).u ≈ [3.0, 1.0]
+
+    # Limits, callback and init/solve! interface
+    prob = OptimizationProblem(optf, [10.0, 18.0], [3.0])
+    @test solve(prob, SPGBoxOpt(); maxiters=1).retcode == ReturnCode.MaxIters
+    sol = solve(prob, SPGBoxOpt(); callback=(state, loss) -> true)
+    @test sol.retcode == ReturnCode.Terminated
+    @test sol.stats.iterations == 2
+    sol = solve!(init(prob, SPGBoxOpt()))
+    @test sol.retcode == ReturnCode.Success
+
+    @test_throws ArgumentError SPGBoxOpt(nitmax=10)
+end
