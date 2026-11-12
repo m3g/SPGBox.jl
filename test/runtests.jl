@@ -214,13 +214,23 @@ end
     optf_max = OptimizationFunction((x, p) -> -f(x, p), AutoForwardDiff())
     prob = OptimizationProblem(optf_max, [10.0, 18.0], [3.0]; sense=Optimization.MaxSense)
     @test solve(prob, SPGBoxOpt()).u ≈ [3.0, 1.0]
+    # the callback receives the user's (maximized) objective, not its negation
+    objs = Float64[]
+    solve(prob, SPGBoxOpt(); callback=(state, loss) -> (push!(objs, loss); false))
+    @test all(<=(0.0), objs)
+    @test objs[1] > -f([10.0, 18.0], [3.0])
 
     # Limits, callback and init/solve! interface
     prob = OptimizationProblem(optf, [10.0, 18.0], [3.0])
-    @test solve(prob, SPGBoxOpt(); maxiters=1).retcode == ReturnCode.MaxIters
-    sol = solve(prob, SPGBoxOpt(); callback=(state, loss) -> true)
+    sol = solve(prob, SPGBoxOpt(); maxiters=1)
+    @test sol.retcode == ReturnCode.MaxIters
+    @test sol.stats.iterations == 1
+    @test sol.original.nit == 2 # spgbox! counts the initial point as iteration 1
+    iters = Int[]
+    sol = solve(prob, SPGBoxOpt(); callback=(state, loss) -> (push!(iters, state.iter); true))
     @test sol.retcode == ReturnCode.Terminated
-    @test sol.stats.iterations == 2
+    @test iters == [1]
+    @test sol.stats.iterations == 1
     sol = solve!(init(prob, SPGBoxOpt()))
     @test sol.retcode == ReturnCode.Success
 

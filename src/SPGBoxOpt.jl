@@ -11,18 +11,19 @@ The solver is available once `Optimization` (or `OptimizationBase` and `SciMLBas
 using SPGBox, Optimization, ForwardDiff
 f(x, p) = (x[1] - p[1])^2 + (x[2] - 1)^2
 optf = OptimizationFunction(f, AutoForwardDiff())
-prob = OptimizationProblem(optf, [10.0, 18.0], [0.0]; lb = [2.0, -Inf], ub = [Inf, Inf])
+prob = OptimizationProblem(optf, [10.0, 18.0], [1.0]; lb = [2.0, -Inf], ub = [Inf, Inf])
 sol = solve(prob, SPGBoxOpt())
 ```
 
-The keyword arguments are the options of [`spgbox!`](@ref) of the same name, and are the 
+The keyword arguments are the options of [`spgbox!`](@ref) of the same name, and are the
 only ones that can be set in the constructor. The common `solve` options are interpreted as:
 
-- `maxiters`: sets `nitmax`. If set, the limit on the number of function evaluations is
-  `nfevalmax` if provided to `SPGBoxOpt`, and unlimited otherwise.
+- `maxiters`: maximum number of iterations (the initial point is not counted). If set, the
+  limit on the number of function evaluations is `nfevalmax` if provided to `SPGBoxOpt`,
+  and unlimited otherwise.
   If not set, the defaults of `spgbox!` are used.
 - `maxtime`: maximum time (in seconds), checked at the end of every iteration.
-- `callback`: called as `callback(state, f)` after every iteration. The `state.original` field is the 
+- `callback`: called as `callback(state, f)` after every iteration. The `state.original` field is the
   current `SPGBoxResult`. If the callback returns `true` the optimization stops.
 - `abstol` and `reltol` are not used. Use the `eps` option (tolerance on the projected gradient norm).
 

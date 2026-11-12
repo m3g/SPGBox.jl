@@ -19,12 +19,12 @@ this interface.
 
 Install `SPGBox` and `Optimization`, plus an automatic-differentiation backend
 if the gradient is not supplied explicitly. The example below uses
-`ForwardDiff` through `ADTypes`:
+`ForwardDiff` (`AutoForwardDiff` is re-exported by `Optimization`):
 
 ```julia-repl
 julia> using Pkg
 
-julia> Pkg.add(["SPGBox", "Optimization", "ADTypes", "ForwardDiff"])
+julia> Pkg.add(["SPGBox", "Optimization", "ForwardDiff"])
 ```
 
 If the gradient is provided directly, an AD package is not required.
@@ -36,7 +36,7 @@ The objective function must be of the Optimization.jl form `f(x,p)`, where
 automatic-differentiation backend (here, `ForwardDiff`):
 
 ```julia-repl
-julia> using SPGBox, Optimization, ADTypes, ForwardDiff
+julia> using SPGBox, Optimization, ForwardDiff
 
 julia> f(x, p) = (x[1] - p[1])^2 + (x[2] - 1)^2
 f (generic function with 1 method)
@@ -67,7 +67,7 @@ SPGBoxOpt
 
 | `solve` keyword | Effect |
 |:----------------|:-------|
-| `maxiters`      | Sets `nitmax`. If given, the evaluation limit is the `nfevalmax` passed to `SPGBoxOpt` (or unlimited, if none was passed). If not given, the `spgbox!` defaults are used. |
+| `maxiters`      | Maximum number of iterations (the initial point is not counted). If given, the evaluation limit is the `nfevalmax` passed to `SPGBoxOpt` (or unlimited, if none was passed). If not given, the `spgbox!` defaults are used. |
 | `maxtime`       | Checked at the end of every iteration (in seconds). |
 | `callback`      | Called as `callback(state, f)` after every iteration. `state.original` holds the current `SPGBoxResult`. Returning `true` stops the optimization. |
 | `abstol`, `reltol` | Not used. Use the `eps` option of `SPGBoxOpt` (tolerance on the projected gradient norm) instead. |

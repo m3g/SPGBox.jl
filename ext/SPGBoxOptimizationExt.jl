@@ -21,7 +21,9 @@ function SciMLBase.__solve(cache::OptimizationBase.OptimizationCache{<:SPGBoxOpt
     limits = if isnothing(maxiters)
         (;)
     else
-        (; nitmax=maxiters, nfevalmax=get(opt.kwargs, :nfevalmax, typemax(Int)))
+        # spgbox! counts the initial point as iteration 1, so nitmax = maxiters + 1
+        # allows exactly `maxiters` iterations.
+        (; nitmax=maxiters + 1, nfevalmax=get(opt.kwargs, :nfevalmax, typemax(Int)))
     end
 
     ngeval = Ref(0)
@@ -31,13 +33,17 @@ function SciMLBase.__solve(cache::OptimizationBase.OptimizationCache{<:SPGBoxOpt
         cache.f.grad(g, u)
     end
 
+    # With MaxSense, OptimizationBase passes -f to the solver; report the user's objective.
+    sgn = cache.sense === SciMLBase.MaxSense ? -1 : 1
+
     t0 = time()
     timed_out = Ref(false)
     callback = R -> begin
+        objective = sgn * R.f
         state = OptimizationBase.OptimizationState(;
-            iter=R.nit, u=R.x, objective=R.f, original=R
+            iter=R.nit - 1, u=R.x, objective, original=R
         )
-        stop = cache.callback(state, R.f)
+        stop = cache.callback(state, objective)
         if !isnothing(maxtime) && time() - t0 > maxtime
             timed_out[] = true
             stop = true
@@ -57,7 +63,7 @@ function SciMLBase.__solve(cache::OptimizationBase.OptimizationCache{<:SPGBoxOpt
         ReturnCode.MaxIters
     end
     stats = OptimizationStats(;
-        iterations=res.nit, time=time() - t0, fevals=res.nfeval, gevals=ngeval[]
+        iterations=res.nit - 1, time=time() - t0, fevals=res.nfeval, gevals=ngeval[]
     )
     return SciMLBase.build_solution(
         cache, opt, res.x, res.f; original=res, retcode, stats
