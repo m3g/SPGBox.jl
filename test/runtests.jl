@@ -224,5 +224,12 @@ end
     sol = solve!(init(prob, SPGBoxOpt()))
     @test sol.retcode == ReturnCode.Success
 
+    # Time limit and function-evaluation limit
+    sol = solve(prob, SPGBoxOpt(); maxtime=0.0)
+    @test sol.retcode == ReturnCode.MaxTime
+    sol = solve(prob, SPGBoxOpt(nfevalmax=1))
+    @test sol.original.ierr == 2
+
     @test_throws ArgumentError SPGBoxOpt(nitmax=10)
+    @test sprint(show, SPGBoxOpt(eps=1e-8)) == "SPGBoxOpt(eps = 1.0e-8)"
 end
