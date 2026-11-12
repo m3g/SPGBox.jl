@@ -18,6 +18,9 @@ projected gradient methods on convex sets", SIAM Journal on Optimization
 
 The complete documentation can be found at: https://m3g.github.io/SPGBox.jl
 
+For use through Optimization.jl, see the
+[Optimization.jl interface guide](https://m3g.github.io/SPGBox.jl/stable/optimization/#Optimization).
+
 ## How to install
 
 ```julia
@@ -62,7 +65,7 @@ julia> spgbox!(f,g!,x,lower=[2.,-Inf])
  Sample of best point = Vector{Float64}[ 2.0, 0.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 3
+ Number of iterations = 2
  Number of function evaluations = 3
 
 ```

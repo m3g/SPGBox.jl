@@ -10,6 +10,7 @@ makedocs(
         "Installation" => "index.md",
         "User guide" => "usage.md",
         "Options" => "options.md",
+        "Optimization.jl interface" => "optimization.md",
         "Reference" => "reference.md",
     ],
 )

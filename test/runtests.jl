@@ -156,9 +156,9 @@ end
 
     # Test return from callback
     x = [10.0, 18.0]
-    R = spgbox!(f, g!, x; callback=(R) -> R.nit <= 1 ? false : true)
+    R = spgbox!(f, g!, x; callback=(R) -> R.nit >= 1)
     @test R.f ≈ 388.99999931805274
-    @test R.nit == 2
+    @test R.nit == 1
     @test R.x ≈ [9.999999991234612, 17.99999998509884]
 
     # Test definition of m by the user
@@ -186,4 +186,73 @@ end
     vaux = SPGBox.VAux(x0, 0.0; m=10)
     a = @ballocated spgbox!($f, $g!, $x0; vaux=$vaux) setup = (samples = 1; evals = 1)
     @test a == 0
+end
+
+@testitem "iteration counting" begin
+    using SPGBox
+    f(x) = x[1]^2 + x[2]^2
+    g!(g, x) = (g[1] = 2x[1]; g[2] = 2x[2]; g)
+    # the initial point does not count as an iteration
+    @test spgbox!(f, g!, [0.0, 0.0]).nit == 0
+    R = spgbox!(f, g!, [1.0, 2.0]; nitmax=1)
+    @test R.nit == 1
+    @test R.ierr == 1
+    nits = Int[]
+    spgbox!(f, g!, [1.0, 2.0]; callback=R -> (push!(nits, R.nit); false))
+    @test first(nits) == 1
+end
+
+@testitem "Optimization.jl interface" begin
+    using SPGBox
+    using Optimization
+    using ForwardDiff
+
+    f(x, p) = (x[1] - p[1])^2 + (x[2] - 1)^2
+    optf = OptimizationFunction(f, AutoForwardDiff())
+
+    # Unbounded
+    prob = OptimizationProblem(optf, [10.0, 18.0], [3.0])
+    sol = solve(prob, SPGBoxOpt())
+    @test sol.u ≈ [3.0, 1.0]
+    @test sol.objective ≈ 0.0 atol = 1e-8
+    @test sol.retcode == ReturnCode.Success
+    @test prob.u0 == [10.0, 18.0]
+
+    # Bounded, and options passed to spgbox
+    prob = OptimizationProblem(optf, [10.0, 18.0], [0.0]; lb=[2.0, -Inf], ub=[Inf, Inf])
+    sol = solve(prob, SPGBoxOpt(eps=1e-8))
+    @test sol.u ≈ [2.0, 1.0]
+    @test sol.objective ≈ 4.0
+
+    # Maximization
+    optf_max = OptimizationFunction((x, p) -> -f(x, p), AutoForwardDiff())
+    prob = OptimizationProblem(optf_max, [10.0, 18.0], [3.0]; sense=Optimization.MaxSense)
+    @test solve(prob, SPGBoxOpt()).u ≈ [3.0, 1.0]
+    # the callback receives the user's (maximized) objective, not its negation
+    objs = Float64[]
+    solve(prob, SPGBoxOpt(); callback=(state, loss) -> (push!(objs, loss); false))
+    @test all(<=(0.0), objs)
+    @test objs[1] > -f([10.0, 18.0], [3.0])
+
+    # Limits, callback and init/solve! interface
+    prob = OptimizationProblem(optf, [10.0, 18.0], [3.0])
+    sol = solve(prob, SPGBoxOpt(); maxiters=1)
+    @test sol.retcode == ReturnCode.MaxIters
+    @test sol.stats.iterations == 1
+    iters = Int[]
+    sol = solve(prob, SPGBoxOpt(); callback=(state, loss) -> (push!(iters, state.iter); true))
+    @test sol.retcode == ReturnCode.Terminated
+    @test iters == [1]
+    @test sol.stats.iterations == 1
+    sol = solve!(init(prob, SPGBoxOpt()))
+    @test sol.retcode == ReturnCode.Success
+
+    # Time limit and function-evaluation limit
+    sol = solve(prob, SPGBoxOpt(); maxtime=0.0)
+    @test sol.retcode == ReturnCode.MaxTime
+    sol = solve(prob, SPGBoxOpt(nfevalmax=1))
+    @test sol.original.ierr == 2
+
+    @test_throws ArgumentError SPGBoxOpt(nitmax=10)
+    @test sprint(show, SPGBoxOpt(eps=1e-8)) == "SPGBoxOpt(eps = 1.0e-8)"
 end
