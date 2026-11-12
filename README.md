@@ -18,6 +18,9 @@ projected gradient methods on convex sets", SIAM Journal on Optimization
 
 The complete documentation can be found at: https://m3g.github.io/SPGBox.jl
 
+For use through Optimization.jl, see the
+[Optimization.jl interface guide](https://m3g.github.io/SPGBox.jl/stable/optimization/#Optimization).
+
 ## How to install
 
 ```julia

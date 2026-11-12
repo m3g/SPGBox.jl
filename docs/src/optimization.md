@@ -15,6 +15,20 @@ The interface is provided by a package extension, loaded automatically when
 loaded. No extra dependency is added to `SPGBox` for users who do not need
 this interface.
 
+## Installation
+
+Install `SPGBox` and `Optimization`, plus an automatic-differentiation backend
+if the gradient is not supplied explicitly. The example below uses
+`ForwardDiff` through `ADTypes`:
+
+```julia-repl
+julia> using Pkg
+
+julia> Pkg.add(["SPGBox", "Optimization", "ADTypes", "ForwardDiff"])
+```
+
+If the gradient is provided directly, an AD package is not required.
+
 ## Basic usage
 
 The objective function must be of the Optimization.jl form `f(x,p)`, where
@@ -22,7 +36,7 @@ The objective function must be of the Optimization.jl form `f(x,p)`, where
 automatic-differentiation backend (here, `ForwardDiff`):
 
 ```julia-repl
-julia> using SPGBox, Optimization, ForwardDiff
+julia> using SPGBox, Optimization, ADTypes, ForwardDiff
 
 julia> f(x, p) = (x[1] - p[1])^2 + (x[2] - 1)^2
 f (generic function with 1 method)
@@ -66,5 +80,6 @@ The `lb` and `ub` bounds of the `OptimizationProblem` are passed directly to
 A script comparing `SPGBoxOpt` against other gradient-based, box-constrained
 Optimization.jl solvers (L-BFGS-B, `Fminbox(LBFGS())` and `NLopt.LD_LBFGS()`)
 is available in
-[`benchmark/optimization/`](https://github.com/m3g/SPGBox.jl/tree/main/benchmark/optimization)
-in the repository.
+[`benchmark/optimization/`](https://github.com/m3g/SPGBox.jl/tree/main/benchmark/optimization).
+See its [README](https://github.com/m3g/SPGBox.jl/blob/main/benchmark/optimization/README.md)
+for setup and run instructions.
