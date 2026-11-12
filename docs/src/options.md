@@ -40,7 +40,7 @@ julia> spgbox(fg!,x)
  Sample of best point = Vector{Float64}[ 1.0, 2.0, 3.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 3
+ Number of iterations = 2
  Number of function evaluations = 3
 ```
 

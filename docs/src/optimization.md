@@ -67,7 +67,7 @@ SPGBoxOpt
 
 | `solve` keyword | Effect |
 |:----------------|:-------|
-| `maxiters`      | Maximum number of iterations (the initial point is not counted). If given, the evaluation limit is the `nfevalmax` passed to `SPGBoxOpt` (or unlimited, if none was passed). If not given, the `spgbox!` defaults are used. |
+| `maxiters`      | Maximum number of iterations (sets `nitmax`). If given, the evaluation limit is the `nfevalmax` passed to `SPGBoxOpt` (or unlimited, if none was passed). If not given, the `spgbox!` defaults are used. |
 | `maxtime`       | Checked at the end of every iteration (in seconds). |
 | `callback`      | Called as `callback(state, f)` after every iteration. `state.original` holds the current `SPGBoxResult`. Returning `true` stops the optimization. |
 | `abstol`, `reltol` | Not used. Use the `eps` option of `SPGBoxOpt` (tolerance on the projected gradient norm) instead. |

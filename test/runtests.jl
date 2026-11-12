@@ -156,9 +156,9 @@ end
 
     # Test return from callback
     x = [10.0, 18.0]
-    R = spgbox!(f, g!, x; callback=(R) -> R.nit <= 1 ? false : true)
+    R = spgbox!(f, g!, x; callback=(R) -> R.nit >= 1)
     @test R.f ≈ 388.99999931805274
-    @test R.nit == 2
+    @test R.nit == 1
     @test R.x ≈ [9.999999991234612, 17.99999998509884]
 
     # Test definition of m by the user
@@ -186,6 +186,20 @@ end
     vaux = SPGBox.VAux(x0, 0.0; m=10)
     a = @ballocated spgbox!($f, $g!, $x0; vaux=$vaux) setup = (samples = 1; evals = 1)
     @test a == 0
+end
+
+@testitem "iteration counting" begin
+    using SPGBox
+    f(x) = x[1]^2 + x[2]^2
+    g!(g, x) = (g[1] = 2x[1]; g[2] = 2x[2]; g)
+    # the initial point does not count as an iteration
+    @test spgbox!(f, g!, [0.0, 0.0]).nit == 0
+    R = spgbox!(f, g!, [1.0, 2.0]; nitmax=1)
+    @test R.nit == 1
+    @test R.ierr == 1
+    nits = Int[]
+    spgbox!(f, g!, [1.0, 2.0]; callback=R -> (push!(nits, R.nit); false))
+    @test first(nits) == 1
 end
 
 @testitem "Optimization.jl interface" begin
@@ -225,7 +239,6 @@ end
     sol = solve(prob, SPGBoxOpt(); maxiters=1)
     @test sol.retcode == ReturnCode.MaxIters
     @test sol.stats.iterations == 1
-    @test sol.original.nit == 2 # spgbox! counts the initial point as iteration 1
     iters = Int[]
     sol = solve(prob, SPGBoxOpt(); callback=(state, loss) -> (push!(iters, state.iter); true))
     @test sol.retcode == ReturnCode.Terminated

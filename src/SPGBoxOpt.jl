@@ -18,10 +18,9 @@ sol = solve(prob, SPGBoxOpt())
 The keyword arguments are the options of [`spgbox!`](@ref) of the same name, and are the
 only ones that can be set in the constructor. The common `solve` options are interpreted as:
 
-- `maxiters`: maximum number of iterations (the initial point is not counted). If set, the
-  limit on the number of function evaluations is `nfevalmax` if provided to `SPGBoxOpt`,
-  and unlimited otherwise.
-  If not set, the defaults of `spgbox!` are used.
+- `maxiters`: maximum number of iterations (sets `nitmax`). If set, the limit on the
+  number of function evaluations is `nfevalmax` if provided to `SPGBoxOpt`, and unlimited
+  otherwise. If not set, the defaults of `spgbox!` are used.
 - `maxtime`: maximum time (in seconds), checked at the end of every iteration.
 - `callback`: called as `callback(state, f)` after every iteration. The `state.original` field is the
   current `SPGBoxResult`. If the callback returns `true` the optimization stops.

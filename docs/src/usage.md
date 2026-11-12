@@ -55,7 +55,7 @@ julia> R = spgbox(f,g!,x,lower=[-Inf,5])
  Sample of best point = Vector{Float64}[ 0.0, 5.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 3
+ Number of iterations = 2
  Number of function evaluations = 3
 ```
 
@@ -90,7 +90,7 @@ julia> R = spgbox(f,g!,x,lower=[-Inf,5])
  Sample of best point = Vector{Float64}[ 0.0, 5.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 3
+ Number of iterations = 2
  Number of function evaluations = 3
 ```
 
@@ -190,7 +190,7 @@ julia> R = spgbox!(f, g!, x; callback = my_callback)
  Sample of best point = Vector{Float64}[ 1.5429284794371168, 2.543387528602126]
  Projected gradient norm = 14.705674573954493
 
- Number of iterations = 10
+ Number of iterations = 9
  Number of function evaluations = 10
 ```
 
@@ -235,7 +235,7 @@ julia> spgbox(f,g!,x)
  Sample of best point = Matrix{Quantity{BigFloat, 𝐋, Unitful.FreeUnits{(nm,), 𝐋, nothing}}}[ 1.0 nm, 2.0 nm, 3.0 nm, 4.0 nm]
  Projected gradient norm = 0.0 nm
 
- Number of iterations = 2
+ Number of iterations = 1
  Number of function evaluations = 3
 
 ```
@@ -336,7 +336,7 @@ julia> spgbox!(f, (g,x) -> ReverseDiff.gradient!(g,f,x), x, lower=[-Inf,2.])
  Sample of best point = Vector{Float64}[ 0.0, 2.0]
  Projected gradient norm = 0.0
 
- Number of iterations = 3
+ Number of iterations = 2
  Number of function evaluations = 3
 
 ```
