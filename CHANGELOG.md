@@ -5,6 +5,9 @@ SPGBox.jl Changelog
 [badge-bugfix]: https://img.shields.io/badge/BUGFIX-yellow.svg
 [badge-info]: https://img.shields.io/badge/Info-gray.svg
 
+Version 0.7.5-DEV
+-------------
+
 Version 0.7.4
 -------------
 - ![FEATURE][badge-feature] Add the optional Optimization.jl interface through `SPGBoxOpt`, including box bounds and common solve options.
